@@ -57,5 +57,13 @@ public class VendorConfiguration : IEntityTypeConfiguration<Vendor>
         builder.Property(v => v.CreatedBy)
             .HasColumnName("created_by")
             .IsRequired();
+
+        builder.Property(c => c.ModifiedAt)
+            .HasColumnName("modified_at")
+            .IsRequired(false);
+
+        builder.Property(c => c.ModifiedBy)
+            .HasColumnName("modified_by")
+            .IsRequired(false);
     }
 }
