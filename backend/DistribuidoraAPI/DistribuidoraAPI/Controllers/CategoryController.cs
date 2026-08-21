@@ -1,8 +1,6 @@
-﻿using DistribuidoraAPI.Data;
-using DistribuidoraAPI.DTOs.Category;
-using DistribuidoraAPI.Models;
+﻿using DistribuidoraAPI.DTOs.Category;
+using DistribuidoraAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace DistribuidoraAPI.Controllers;
 
@@ -10,127 +8,85 @@ namespace DistribuidoraAPI.Controllers;
 [Route("api/categories")]
 public class CategoryController : ControllerBase
 {
-    private readonly AppDbContext _context;
-
-    public CategoryController(AppDbContext context)
+    private readonly ICategoryService _categoryService;
+    
+    public CategoryController(ICategoryService categoryService)
     {
-        _context = context;
+        _categoryService = categoryService;
     }
 
-    // GET: api/categories
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetAll()
     {
-        var categories = await _context.Categories
-            .Where(c => c.Active)
-            .OrderBy(c => c.Name)
-            .Select(c => new CategoryResponseDto
-            {
-                Id = c.Id,
-                Name = c.Name
-            })
-            .ToListAsync();
-
+        var categories = await _categoryService.GetAll();
         return Ok(categories);
     }
 
-    // GET: api/categories/1
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CategoryResponseDto>> GetById(int id)
     {
-        var category = await _context.Categories
-            .Where(c => c.Id == id && c.Active)
-            .Select(c => new CategoryResponseDto
-            {
-                Id = c.Id,
-                Name = c.Name
-            })
-            .FirstOrDefaultAsync();
+        var category = await _categoryService.GetById(id);
 
         if (category is null)
-        {
             return NotFound();
-        }
-
+        
         return Ok(category);
     }
 
-    // POST: api/categories
     [HttpPost]
-    public async Task<ActionResult<CategoryResponseDto>> Create(
-        CreateCategoryRequest request)
+    public async Task<ActionResult<CategoryResponseDto>> Create(CreateCategoryRequest request)
     {
-        var category = new Category
+     
+        try
         {
-            Name = request.Name,
-            Active = true,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = request.UserId
-        };
-
-        _context.Categories.Add(category);
-
-        await _context.SaveChangesAsync();
-
-        var response = new CategoryResponseDto
+            var response = await _categoryService.Create(request);
+            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+        }
+        catch (InvalidOperationException ex)
         {
-            Id = category.Id,
-            Name = category.Name
-        };
-
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = category.Id },
-            response);
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
-    // PUT: api/categories/1
     [HttpPut("{id:int}")]
     public async Task<ActionResult<CategoryResponseDto>> Update(
         int id,
         UpdateCategoryRequest request)
     {
-        var category = await _context.Categories
-            .FirstOrDefaultAsync(c => c.Id == id && c.Active);
-
-        if (category is null)
+        try
         {
-            return NotFound();
+            var response = await _categoryService.Update(id, request);
+            return Ok(response);
         }
-
-        category.Name = request.Name;
-        category.ModifiedAt = DateTime.UtcNow;
-        category.ModifiedBy = request.UserId;
-
-        await _context.SaveChangesAsync();
-
-        var response = new CategoryResponseDto
+        catch (KeyNotFoundException ex)
         {
-            Id = category.Id,
-            Name = category.Name
-        };
-
-        return Ok(response);
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (ArgumentException ex){
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
-    // DELETE: api/categories/1
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, [FromBody] int userId)
     {
-        var category = await _context.Categories
-            .FirstOrDefaultAsync(c => c.Id == id && c.Active);
-
-        if (category is null)
+        
+        try
         {
-            return NotFound();
+            await _categoryService.Delete(id, userId);
+            return NoContent();
         }
-
-        category.Active = false;
-        category.ModifiedAt = DateTime.UtcNow;
-        category.ModifiedBy = userId;
-
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
     }
 }
