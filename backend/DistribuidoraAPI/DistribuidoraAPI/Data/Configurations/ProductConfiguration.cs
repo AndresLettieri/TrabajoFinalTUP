@@ -75,6 +75,14 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasColumnName("created_by")
             .IsRequired();
 
+        builder.Property(c => c.ModifiedAt)
+            .HasColumnName("modified_at")
+            .IsRequired(false);
+
+        builder.Property(c => c.ModifiedBy)
+            .HasColumnName("modified_by")
+            .IsRequired(false);
+
         builder.HasOne(p => p.Category)
             .WithMany()
             .HasForeignKey(p => p.CategoryId)

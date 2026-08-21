@@ -56,6 +56,14 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasColumnName("created_by")
             .IsRequired();
 
+        builder.Property(c => c.ModifiedAt)
+            .HasColumnName("modified_at")
+            .IsRequired(false);
+
+        builder.Property(c => c.ModifiedBy)
+            .HasColumnName("modified_by")
+            .IsRequired(false);
+
         builder.HasOne(o => o.Customer)
             .WithMany()
             .HasForeignKey(o => o.CustomerId)
