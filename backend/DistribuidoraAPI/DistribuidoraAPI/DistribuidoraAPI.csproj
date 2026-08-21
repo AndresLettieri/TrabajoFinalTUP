@@ -15,6 +15,7 @@
     </PackageReference>
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,7 +24,6 @@
     <Folder Include="DTOs\Purchase\" />
     <Folder Include="DTOs\Vendor\" />
     <Folder Include="DTOs\Product\" />
-    <Folder Include="DTOs\User\" />
   </ItemGroup>
 
 </Project>
