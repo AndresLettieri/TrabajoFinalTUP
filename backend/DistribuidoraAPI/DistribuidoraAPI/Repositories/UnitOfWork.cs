@@ -9,6 +9,8 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
     private ICategoryRepository? _categoryRepository;
+    private IUserRepository? _userRepository;
+
     private IDbContextTransaction? _transaction;
     private readonly Dictionary<Type, object> _repositories = new();
 
@@ -26,6 +28,18 @@ public class UnitOfWork : IUnitOfWork
                 _categoryRepository = new CategoryRepository(_context);
             }
             return _categoryRepository;
+        }
+    }
+
+    public IUserRepository Users
+    {
+        get
+        {
+            if (_userRepository == null)
+            {
+                _userRepository = new UserRepository(_context);
+            }
+            return _userRepository;
         }
     }
 
