@@ -35,5 +35,13 @@ public class PaymentMethodConfiguration : IEntityTypeConfiguration<PaymentMethod
         builder.Property(pm => pm.CreatedBy)
             .HasColumnName("created_by")
             .IsRequired();
+
+        builder.Property(c => c.ModifiedAt)
+            .HasColumnName("modified_at")
+            .IsRequired(false);
+
+        builder.Property(c => c.ModifiedBy)
+            .HasColumnName("modified_by")
+            .IsRequired(false);
     }
 }
