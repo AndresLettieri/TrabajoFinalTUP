@@ -24,7 +24,6 @@
     <Folder Include="DTOs\Vendor\" />
     <Folder Include="DTOs\Product\" />
     <Folder Include="DTOs\User\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
