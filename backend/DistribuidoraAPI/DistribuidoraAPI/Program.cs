@@ -1,4 +1,7 @@
 using DistribuidoraAPI.Data;
+using DistribuidoraAPI.Repositories;
+using DistribuidoraAPI.Services;
+using DistribuidoraAPI.Services.Implementations;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -15,6 +18,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             builder.Configuration.GetConnectionString("DefaultConnection")
         )
     ));
+
+
+// Registrar services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+// Registrar Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
