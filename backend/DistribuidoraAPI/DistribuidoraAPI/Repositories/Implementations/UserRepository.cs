@@ -12,7 +12,7 @@ namespace DistribuidoraAPI.Repositories.Implementations
         public async Task<User?> GetByEmail(string email)
         {
             return await _dbSet
-                .Where(u => u.Email.ToLower() == email.ToLower())
+                .Where(u => u.Email.ToLower() == email.ToLower() && u.Active)
                 .FirstOrDefaultAsync();
         }
         public async Task<IEnumerable<User>> GetActiveUsers()
