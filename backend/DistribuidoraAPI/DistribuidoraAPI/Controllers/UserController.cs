@@ -27,30 +27,14 @@ public class UserController : ControllerBase
     public async Task<ActionResult<UserResponseDto>> GetById(int id)
     {
         var user = await _userService.GetById(id);
-
-        if (user is null)
-            return NotFound();
-
         return Ok(user);
     }
 
     [HttpPost]
     public async Task<ActionResult<UserResponseDto>> Create(CreateUserRequest request)
     {
-
-        try
-        {
-            var response = await _userService.Create(request);
-            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var response = await _userService.Create(request);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpPut("{id:int}")]
@@ -58,38 +42,15 @@ public class UserController : ControllerBase
         int id,
         UpdateUserRequest request)
     {
-        try
-        {
-            var response = await _userService.Update(id, request);
-            return Ok(response);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var response = await _userService.Update(id, request);
+        return Ok(response);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, [FromBody] AuditUserDto auditUserDto)
     {
-
-        try
-        {
-            await _userService.Delete(id, auditUserDto.UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        await _userService.Delete(id, auditUserDto.UserId);
+        return NoContent();
     }
 }
 

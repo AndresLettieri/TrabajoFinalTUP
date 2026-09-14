@@ -27,13 +27,13 @@ public class CategoryService : ICategoryService
             Name = c.Name
         }).ToList();
     }
-    public async Task<CategoryResponseDto?> GetById(int id)
+    public async Task<CategoryResponseDto> GetById(int id)
     {
         
         var category = await _unitOfWork.Categories.GetActiveCategoryById(id);
 
         if (category is null)
-            return null;
+            throw new KeyNotFoundException($"No se encontró la categoría con ID {id}");
         
         return new CategoryResponseDto
         {
