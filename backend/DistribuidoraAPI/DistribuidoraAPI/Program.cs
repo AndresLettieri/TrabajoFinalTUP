@@ -1,16 +1,15 @@
 using DistribuidoraAPI.Data;
-using DistribuidoraAPI.DTOs;
-using DistribuidoraAPI.Middleware;
 using DistribuidoraAPI.Repositories;
 using DistribuidoraAPI.Services;
 using DistribuidoraAPI.Services.Implementations;
 using DistribuidoraAPI.Services.Security;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
@@ -33,31 +32,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Registrar Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+//Service para manejar los enums como strings en JSON
 builder.Services
     .AddControllers()
-    .ConfigureApiBehaviorOptions(options =>
-    {
-        options.InvalidModelStateResponseFactory = context =>
-        {
-            var errors = context.ModelState
-                .Where(entry => entry.Value?.Errors.Count > 0)
-                .ToDictionary(
-                    entry => entry.Key,
-                    entry => entry.Value!.Errors
-                        .Select(error => string.IsNullOrWhiteSpace(error.ErrorMessage)
-                            ? "El valor no es válido."
-                            : error.ErrorMessage)
-                        .ToArray());
-
-            var response = new ApiErrorResponse(
-                StatusCodes.Status400BadRequest,
-                "La solicitud contiene datos inválidos.",
-                context.HttpContext.TraceIdentifier,
-                errors);
-
-            return new BadRequestObjectResult(response);
-        };
-    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(
@@ -77,8 +54,6 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/openapi/v1.json", "Distribuidora API v1");
     });
 }
-
-app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

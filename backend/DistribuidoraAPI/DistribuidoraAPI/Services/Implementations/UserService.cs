@@ -30,12 +30,11 @@ namespace DistribuidoraAPI.Services.Implementations
             }).ToList();
         }
 
-        public async Task<UserResponseDto> GetById(int id)
+        public async Task<UserResponseDto?> GetById(int id)
         {
             var user = await _unitOfWork.Users.GetActiveUserById(id);
             if (user is null)
-                throw new KeyNotFoundException($"No se encontró el usuario con ID {id}");
-
+                return null;
             return new UserResponseDto
             {
                 Id = user.Id,
