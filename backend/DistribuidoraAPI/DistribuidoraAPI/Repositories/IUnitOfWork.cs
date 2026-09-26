@@ -6,6 +6,7 @@ namespace DistribuidoraAPI.Repositories;
 public interface IUnitOfWork : IDisposable
 {
     ICategoryRepository Categories { get; }
+    ICustomerRepository Customers { get; }
     IUserRepository Users { get; }
 
     IRepository<T> GetRepository<T>() where T : class;
