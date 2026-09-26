@@ -9,6 +9,7 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
     private ICategoryRepository? _categoryRepository;
+    private ICustomerRepository? _customerRepository;
     private IUserRepository? _userRepository;
 
     private IDbContextTransaction? _transaction;
@@ -28,6 +29,18 @@ public class UnitOfWork : IUnitOfWork
                 _categoryRepository = new CategoryRepository(_context);
             }
             return _categoryRepository;
+        }
+    }
+
+    public ICustomerRepository Customers
+    {
+        get
+        {
+            if (_customerRepository == null)
+            {
+                _customerRepository = new CustomerRepository(_context);
+            }
+            return _customerRepository;
         }
     }
 
