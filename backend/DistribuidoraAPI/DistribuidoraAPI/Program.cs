@@ -28,6 +28,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 // Registrar services
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 // Registrar Unit of Work
