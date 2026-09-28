@@ -8,6 +8,7 @@ namespace DistribuidoraAPI.Repositories;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
+    private IBrandRepository? _brandRepository;
     private ICategoryRepository? _categoryRepository;
     private ICustomerRepository? _customerRepository;
     private IVendorRepository? _vendorRepository;
@@ -30,6 +31,18 @@ public class UnitOfWork : IUnitOfWork
                 _categoryRepository = new CategoryRepository(_context);
             }
             return _categoryRepository;
+        }
+    }
+
+    public IBrandRepository Brands
+    {
+        get
+        {
+            if (_brandRepository == null)
+            {
+                _brandRepository = new BrandRepository(_context);
+            }
+            return _brandRepository;
         }
     }
 
