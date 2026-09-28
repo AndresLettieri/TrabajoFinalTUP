@@ -10,16 +10,22 @@ public class BrandConfiguration : IEntityTypeConfiguration<Brand>
     {
         builder.ToTable("brands");
 
-        builder.HasKey(u => u.Id);
+        builder.HasKey(b => b.Id);
 
-        builder.Property(u => u.Id)
+        builder.Property(b => b.Id)
+            .HasColumnName("id")
             .ValueGeneratedOnAdd();
 
-        builder.Property(u => u.Name)
+        builder.Property(b => b.Name)
+            .HasColumnName("name")
             .HasMaxLength(100)
             .IsRequired();
 
-        builder.Property(u => u.Active)
+        builder.HasIndex(b => b.Name)
+            .IsUnique();
+
+        builder.Property(b => b.Active)
+            .HasColumnName("active")
             .IsRequired();
 
         builder.Property(u => u.CreatedAt)

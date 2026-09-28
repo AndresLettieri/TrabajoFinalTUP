@@ -5,6 +5,7 @@ namespace DistribuidoraAPI.Repositories;
 
 public interface IUnitOfWork : IDisposable
 {
+    IBrandRepository Brands { get; }
     ICategoryRepository Categories { get; }
     ICustomerRepository Customers { get; }
     IVendorRepository Vendors { get; }
