@@ -11,6 +11,7 @@ public class UnitOfWork : IUnitOfWork
     private IBrandRepository? _brandRepository;
     private ICategoryRepository? _categoryRepository;
     private ICustomerRepository? _customerRepository;
+    private IPaymentMethodRepository? _paymentMethodRepository;
     private IVendorRepository? _vendorRepository;
     private IUserRepository? _userRepository;
 
@@ -67,6 +68,18 @@ public class UnitOfWork : IUnitOfWork
                 _vendorRepository = new VendorRepository(_context);
             }
             return _vendorRepository;
+        }
+    }
+
+    public IPaymentMethodRepository PaymentMethods
+    {
+        get
+        {
+            if (_paymentMethodRepository == null)
+            {
+                _paymentMethodRepository = new PaymentMethodRepository(_context);
+            }
+            return _paymentMethodRepository;
         }
     }
 

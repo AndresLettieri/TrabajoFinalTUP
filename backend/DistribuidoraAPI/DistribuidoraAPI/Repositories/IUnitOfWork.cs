@@ -8,6 +8,7 @@ public interface IUnitOfWork : IDisposable
     IBrandRepository Brands { get; }
     ICategoryRepository Categories { get; }
     ICustomerRepository Customers { get; }
+    IPaymentMethodRepository PaymentMethods { get; }
     IVendorRepository Vendors { get; }
     IUserRepository Users { get; }
 
