@@ -25,6 +25,44 @@ public class ProductRepository : RepositoryBase<Product>, IProductRepository
             && (!excludedProductId.HasValue || p.Id != excludedProductId.Value));
     }
 
+    public async Task<IEnumerable<Product>> Search(string? code, string? barcode, string? description, int? categoryId, int? brandId, bool? active = true)
+    {
+        var query = _dbSet.AsQueryable();
+
+        if (active.HasValue)
+            query = query.Where(p => p.Active == active.Value);
+
+        if (!string.IsNullOrWhiteSpace(code))
+        {
+            var normalizedCode = code.Trim().ToLower();
+            query = query.Where(p => p.Code.ToLower() == normalizedCode);
+        }
+
+        if (!string.IsNullOrWhiteSpace(barcode))
+        {
+            var normalizedBarcode = barcode.Trim().ToLower();
+            query = query.Where(p =>
+                p.Barcode != null && p.Barcode.ToLower() == normalizedBarcode);
+        }
+
+        if (!string.IsNullOrWhiteSpace(description))
+        {
+            var normalizedDescription = description.Trim().ToLower();
+            query = query.Where(p => p.Description.ToLower().Contains(normalizedDescription));
+        }
+
+        if (categoryId.HasValue)
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+
+        if (brandId.HasValue)
+            query = query.Where(p => p.BrandId == brandId.Value);
+
+        return await query
+            .OrderBy(p => p.Description)
+            .ThenBy(p => p.Code)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Product>> GetActiveProducts()
     {
         return await _dbSet

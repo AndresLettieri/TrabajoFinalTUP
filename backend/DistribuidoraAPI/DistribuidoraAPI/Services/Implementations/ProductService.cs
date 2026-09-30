@@ -20,11 +20,26 @@ public class ProductService : IProductService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<ProductResponseDto>> GetAll()
+    public async Task<IEnumerable<ProductResponseDto>> GetAll(ProductFilterRequest? filters = null)
     {
-        _logger.LogInformation("Obteniendo todos los productos activos");
+        var normalizedFilters = NormalizeFilters(filters);
 
-        var products = await _unitOfWork.Products.GetActiveProducts();
+        _logger.LogInformation(
+            "Buscando productos con filtros: Code={Code}, Barcode={Barcode}, Description={Description}, CategoryId={CategoryId}, BrandId={BrandId}, Active={Active}",
+            normalizedFilters.Code,
+            normalizedFilters.Barcode,
+            normalizedFilters.Description,
+            normalizedFilters.CategoryId,
+            normalizedFilters.BrandId,
+            normalizedFilters.Active);
+
+        var products = await _unitOfWork.Products.Search(
+            normalizedFilters.Code,
+            normalizedFilters.Barcode,
+            normalizedFilters.Description,
+            normalizedFilters.CategoryId,
+            normalizedFilters.BrandId,
+            normalizedFilters.Active);
 
         return products.Select(Map).ToList();
     }
@@ -164,6 +179,29 @@ public class ProductService : IProductService
         };
     }
 
+    private static ProductFilterData NormalizeFilters(ProductFilterRequest? filters)
+    {
+        var code = NormalizeOptional(filters?.Code);
+        var barcode = NormalizeOptional(filters?.Barcode);
+        var description = NormalizeOptional(filters?.Description);
+        var categoryId = filters?.CategoryId;
+        var brandId = filters?.BrandId;
+
+        if (categoryId.HasValue && categoryId.Value <= 0)
+            throw new ArgumentException("El filtro de categoría debe ser mayor que cero");
+
+        if (brandId.HasValue && brandId.Value <= 0)
+            throw new ArgumentException("El filtro de marca debe ser mayor que cero");
+
+        return new ProductFilterData(
+            code,
+            barcode,
+            description,
+            categoryId,
+            brandId,
+            filters?.Active ?? true);
+    }
+
     private static ProductData NormalizeAndValidate(CreateProductRequest request)
     {
         return NormalizeAndValidate(
@@ -268,4 +306,12 @@ public class ProductService : IProductService
     }
 
     private sealed record ProductData(string Code, string? Barcode, string Description, int CategoryId, int BrandId, decimal PurchasePrice, decimal SalePrice, int MinimumStock);
+
+    private sealed record ProductFilterData(
+        string? Code,
+        string? Barcode,
+        string? Description,
+        int? CategoryId,
+        int? BrandId,
+        bool Active);
 }
