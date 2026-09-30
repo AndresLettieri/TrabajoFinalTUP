@@ -23,7 +23,6 @@ public class ProductService : IProductService
     public async Task<IEnumerable<ProductResponseDto>> GetAll(ProductFilterRequest? filters = null)
     {
         var normalizedFilters = NormalizeFilters(filters);
-
         _logger.LogInformation(
             "Buscando productos con filtros: Code={Code}, Barcode={Barcode}, Description={Description}, CategoryId={CategoryId}, BrandId={BrandId}, Active={Active}",
             normalizedFilters.Code,
@@ -40,6 +39,15 @@ public class ProductService : IProductService
             normalizedFilters.CategoryId,
             normalizedFilters.BrandId,
             normalizedFilters.Active);
+
+        return products.Select(Map).ToList();
+    }
+
+    public async Task<IEnumerable<ProductResponseDto>> GetStockAlerts()
+    {
+        _logger.LogInformation("Obteniendo productos activos con alerta de stock");
+
+        var products = await _unitOfWork.Products.GetStockAlerts();
 
         return products.Select(Map).ToList();
     }
