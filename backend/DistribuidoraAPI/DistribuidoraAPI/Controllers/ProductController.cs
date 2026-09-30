@@ -29,6 +29,13 @@ public class ProductController : ControllerBase
         }
     }
 
+    [HttpGet("stock-alerts")]
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetStockAlerts()
+    {
+        var products = await _productService.GetStockAlerts();
+        return Ok(products);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ProductResponseDto>> GetById(int id)
     {

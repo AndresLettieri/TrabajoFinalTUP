@@ -63,6 +63,15 @@ public class ProductRepository : RepositoryBase<Product>, IProductRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Product>> GetStockAlerts()
+    {
+        return await _dbSet
+            .Where(p => p.Active && p.Stock <= p.MinimumStock)
+            .OrderBy(p => p.Stock)
+            .ThenBy(p => p.Description)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Product>> GetActiveProducts()
     {
         return await _dbSet
