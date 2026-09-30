@@ -16,10 +16,17 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetAll([FromQuery] ProductFilterRequest filters)
     {
-        var products = await _productService.GetAll();
-        return Ok(products);
+        try
+        {
+            var products = await _productService.GetAll(filters);
+            return Ok(products);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpGet("{id:int}")]
@@ -56,9 +63,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<ProductResponseDto>> Update(
-        int id,
-        UpdateProductRequest request)
+    public async Task<ActionResult<ProductResponseDto>> Update(int id, UpdateProductRequest request)
     {
         try
         {
