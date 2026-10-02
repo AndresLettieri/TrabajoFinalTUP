@@ -14,5 +14,9 @@ public class StockMovement
 
     public int ReferenceId { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public int? CreatedBy { get; set; }
+
     public Product Product { get; set; } = null!;
 }

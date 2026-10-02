@@ -13,6 +13,7 @@ public class UnitOfWork : IUnitOfWork
     private ICustomerRepository? _customerRepository;
     private IPaymentMethodRepository? _paymentMethodRepository;
     private IProductRepository? _productRepository;
+    private IPurchaseRepository? _purchaseRepository;
     private IVendorRepository? _vendorRepository;
     private IUserRepository? _userRepository;
 
@@ -93,6 +94,18 @@ public class UnitOfWork : IUnitOfWork
                 _productRepository = new ProductRepository(_context);
             }
             return _productRepository;
+        }
+    }
+
+    public IPurchaseRepository Purchases
+    {
+        get
+        {
+            if (_purchaseRepository == null)
+            {
+                _purchaseRepository = new PurchaseRepository(_context);
+            }
+            return _purchaseRepository;
         }
     }
 

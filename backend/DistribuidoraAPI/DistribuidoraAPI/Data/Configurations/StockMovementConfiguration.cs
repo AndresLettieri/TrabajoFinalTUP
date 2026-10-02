@@ -34,6 +34,14 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
             .HasColumnName("reference_id")
             .IsRequired();
 
+        builder.Property(sm => sm.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+
+        builder.Property(sm => sm.CreatedBy)
+            .HasColumnName("created_by")
+            .IsRequired(false);
+
         builder.HasOne(sm => sm.Product)
             .WithMany()
             .HasForeignKey(sm => sm.ProductId)
