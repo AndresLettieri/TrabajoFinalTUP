@@ -3,5 +3,6 @@
 public enum StockMovementType
 {
     Purchase,
-    Sale
+    Sale,
+    PurchaseCancellation
 }
