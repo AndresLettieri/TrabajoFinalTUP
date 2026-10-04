@@ -1,0 +1,49 @@
+<div class="app-layout">
+
+    <header class="app-header">
+
+        <div class="app-header-left">
+            <button id="menu-button" class="menu-button" type="button" aria-label="Abrir menú" aria-expanded="false">☰</button>
+            <h1>Distribuidora</h1>
+        </div>
+
+        <div class="app-header-user">
+            <span id="user-name"></span>
+
+            <button id="logout-button" type="button" aria-label="Cerrar sesión" title="Cerrar sesión">
+                <span class="logout-text">Cerrar sesión</span>
+                <span class="logout-icon">↪🚪</span>
+            </button>
+        </div>
+
+    </header>
+
+    <div class="app-body">
+
+        <nav id="app-sidebar" class="app-sidebar">
+            <div class="sidebar-header">
+                <span>Menú</span>
+                <button id="close-menu-button" class="close-menu-button" type="button" aria-label="Cerrar menú">✕</button>
+            </div>
+            <ul id="sidebar-menu"></ul>
+        </nav>
+    
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+        
+        <main id="page-content" class="page-content"></main>
+
+    </div>
+    
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title">
+            <h2 id="logout-modal-title">Cerrar sesión</h2>
+            <p>¿Estás seguro de que querés cerrar sesión?</p>
+            <div class="modal-actions">
+                <button id="cancel-logout-button" type="button" class="btn btn-secondary">Cancelar</button>
+                <button id="confirm-logout-button" type="button" class="btn btn-primary">Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+

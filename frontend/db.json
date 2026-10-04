@@ -1,0 +1,106 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Administrador",
+      "email": "admin@distribuidora.com",
+      "password": "admin123",
+      "role": "Admin",
+      "active": true
+    },
+    {
+      "id": 2,
+      "name": "Juan Pérez",
+      "email": "vendedor@distribuidora.com",
+      "password": "vendedor123",
+      "role": "Seller",
+      "active": true
+    }
+  ],
+
+  "purchases": [
+    {
+      "id": 1,
+      "vendorId": 1,
+      "vendorName": "Distribuidora Coca-Cola",
+      "number": 1,
+      "date": "2026-10-04T10:30:00",
+      "total": 85000,
+      "observations": "Compra semanal",
+      "cancelled": false,
+      "createdAt": "2026-10-04T10:30:00",
+      "createdBy": 1,
+      "modifiedAt": null,
+      "modifiedBy": null,
+      "details": [
+        {
+          "productId": 1,
+          "productCode": "COC001",
+          "productDescription": "Coca-Cola 2.25L",
+          "quantity": 50,
+          "purchasePrice": 1000,
+          "subtotal": 50000
+        },
+        {
+          "productId": 2,
+          "productCode": "SPR001",
+          "productDescription": "Sprite 2.25L",
+          "quantity": 35,
+          "purchasePrice": 1000,
+          "subtotal": 35000
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "vendorId": 2,
+      "vendorName": "Distribuidora Quilmes",
+      "number": 2,
+      "date": "2026-10-03T09:15:00",
+      "total": 120000,
+      "observations": "Reposición de stock",
+      "cancelled": false,
+      "createdAt": "2026-10-03T09:15:00",
+      "createdBy": 1,
+      "modifiedAt": null,
+      "modifiedBy": null,
+      "details": [
+        {
+          "productId": 3,
+          "productCode": "QUI001",
+          "productDescription": "Cerveza Quilmes 1L",
+          "quantity": 100,
+          "purchasePrice": 1200,
+          "subtotal": 120000
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "vendorId": 1,
+      "vendorName": "Distribuidora Coca-Cola",
+      "number": 3,
+      "date": "2026-09-28T11:00:00",
+      "total": 60000,
+      "observations": null,
+      "cancelled": true,
+      "createdAt": "2026-09-28T11:00:00",
+      "createdBy": 1,
+      "modifiedAt": "2026-09-28T15:30:00",
+      "modifiedBy": 1,
+      "details": [
+        {
+          "productId": 1,
+          "productCode": "COC001",
+          "productDescription": "Coca-Cola 2.25L",
+          "quantity": 60,
+          "purchasePrice": 1000,
+          "subtotal": 60000
+        }
+      ]
+    }
+  ]
+  
+}
+
+
