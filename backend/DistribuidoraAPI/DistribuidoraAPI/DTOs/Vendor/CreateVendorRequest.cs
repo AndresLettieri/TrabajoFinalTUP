@@ -1,0 +1,13 @@
+using DistribuidoraAPI.DTOs;
+
+namespace DistribuidoraAPI.DTOs.Vendor;
+
+public class CreateVendorRequest : AuditUserDto
+{
+    public required string Name { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public string? Address { get; set; }
+    public string? City { get; set; }
+    public string? Observations { get; set; }
+}

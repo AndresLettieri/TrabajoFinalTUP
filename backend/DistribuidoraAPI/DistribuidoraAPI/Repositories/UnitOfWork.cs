@@ -8,7 +8,13 @@ namespace DistribuidoraAPI.Repositories;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
+    private IBrandRepository? _brandRepository;
     private ICategoryRepository? _categoryRepository;
+    private ICustomerRepository? _customerRepository;
+    private IPaymentMethodRepository? _paymentMethodRepository;
+    private IProductRepository? _productRepository;
+    private IPurchaseRepository? _purchaseRepository;
+    private IVendorRepository? _vendorRepository;
     private IUserRepository? _userRepository;
 
     private IDbContextTransaction? _transaction;
@@ -28,6 +34,78 @@ public class UnitOfWork : IUnitOfWork
                 _categoryRepository = new CategoryRepository(_context);
             }
             return _categoryRepository;
+        }
+    }
+
+    public IBrandRepository Brands
+    {
+        get
+        {
+            if (_brandRepository == null)
+            {
+                _brandRepository = new BrandRepository(_context);
+            }
+            return _brandRepository;
+        }
+    }
+
+    public ICustomerRepository Customers
+    {
+        get
+        {
+            if (_customerRepository == null)
+            {
+                _customerRepository = new CustomerRepository(_context);
+            }
+            return _customerRepository;
+        }
+    }
+
+    public IVendorRepository Vendors
+    {
+        get
+        {
+            if (_vendorRepository == null)
+            {
+                _vendorRepository = new VendorRepository(_context);
+            }
+            return _vendorRepository;
+        }
+    }
+
+    public IPaymentMethodRepository PaymentMethods
+    {
+        get
+        {
+            if (_paymentMethodRepository == null)
+            {
+                _paymentMethodRepository = new PaymentMethodRepository(_context);
+            }
+            return _paymentMethodRepository;
+        }
+    }
+
+    public IProductRepository Products
+    {
+        get
+        {
+            if (_productRepository == null)
+            {
+                _productRepository = new ProductRepository(_context);
+            }
+            return _productRepository;
+        }
+    }
+
+    public IPurchaseRepository Purchases
+    {
+        get
+        {
+            if (_purchaseRepository == null)
+            {
+                _purchaseRepository = new PurchaseRepository(_context);
+            }
+            return _purchaseRepository;
         }
     }
 
