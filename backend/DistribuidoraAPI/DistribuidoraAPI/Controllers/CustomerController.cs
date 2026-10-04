@@ -23,6 +23,13 @@ public class CustomerController : ControllerBase
         return Ok(customers);
     }
 
+    [HttpGet("getByFilter")]
+    public async Task<ActionResult<IEnumerable<CustomerResponseDto>>> GetByFilter([FromQuery] CustomerFilterDto filter)
+    {
+        var customers = await _customerService.GetByFilter(filter);
+        return Ok(customers);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CustomerResponseDto>> GetById(int id)
     {
