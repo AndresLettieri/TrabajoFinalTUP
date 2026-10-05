@@ -1,0 +1,10 @@
+using DistribuidoraAPI.Models;
+
+namespace DistribuidoraAPI.Repositories;
+
+public interface IOrderRepository : IRepository<Order>
+{
+    Task<int> GetNextNumber();
+    Task<IEnumerable<Order>> Search(DateTime? dateFrom, DateTime? dateToInclusive, int? customerId, int? sellerId, int? number);
+    Task<Order?> GetByIdWithDetails(int id);
+}

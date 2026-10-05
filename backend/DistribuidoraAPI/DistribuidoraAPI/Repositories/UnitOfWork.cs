@@ -1,4 +1,6 @@
 using DistribuidoraAPI.Data;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using DistribuidoraAPI.Repositories.Implementations;
 
@@ -11,6 +13,7 @@ public class UnitOfWork : IUnitOfWork
     private IBrandRepository? _brandRepository;
     private ICategoryRepository? _categoryRepository;
     private ICustomerRepository? _customerRepository;
+    private IOrderRepository? _orderRepository;
     private IPaymentMethodRepository? _paymentMethodRepository;
     private IProductRepository? _productRepository;
     private IPurchaseRepository? _purchaseRepository;
@@ -85,6 +88,18 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
+    public IOrderRepository Orders
+    {
+        get
+        {
+            if (_orderRepository == null)
+            {
+                _orderRepository = new OrderRepository(_context);
+            }
+            return _orderRepository;
+        }
+    }
+
     public IProductRepository Products
     {
         get
@@ -141,6 +156,11 @@ public class UnitOfWork : IUnitOfWork
     public async Task BeginTransaction()
     {
         _transaction = await _context.Database.BeginTransactionAsync();
+    }
+
+    public async Task BeginTransaction(IsolationLevel isolationLevel)
+    {
+        _transaction = await _context.Database.BeginTransactionAsync(isolationLevel);
     }
     public async Task Commit()
     {
