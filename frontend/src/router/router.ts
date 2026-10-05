@@ -4,7 +4,7 @@ import { renderAdminDashboard } from "../pages/admin/dashboard/dashboard";
 import { renderProducts } from "../pages/admin/products/products";
 import { renderCategories } from "../pages/admin/categories/categories";
 import { renderBrands } from "../pages/admin/brands/brands";
-import { renderCustomers } from "../pages/admin/customers/customers";
+import { renderCustomers } from "../pages/customers/customers";
 import { renderVendors } from "../pages/admin/vendors/vendors";
 import { renderPurchases } from "../pages/admin/purchases/purchases";
 import { renderSales } from "../pages/admin/sales/sales";
@@ -13,7 +13,6 @@ import { renderReports } from "../pages/admin/reports/reports";
 
 import { renderSellerDashboard } from "../pages/seller/dashboard/dashboard";
 import { renderSellerSales } from "../pages/seller/sales/sales";
-import { renderSellerCustomers } from "../pages/seller/customers/customers";
 
 import { renderNotFound } from "../pages/notFound/notFound";
 
@@ -94,7 +93,7 @@ const routes: Record<string, Route> = {
     roles: ["Seller"],
     },
     "/seller/customers": {
-    render: renderSellerCustomers,
+    render: renderCustomers,
     roles: ["Seller"],
     },
 };

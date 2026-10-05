@@ -1,0 +1,93 @@
+<section class="customers-page">
+
+    <div class="customers-header">
+        <div>
+            <h2>Clientes</h2>
+        </div>
+
+        <button id="new-customer-button" class="btn btn-primary" type="button">
+            <span>＋ Nuevo cliente</span>
+        </button>
+    </div>
+
+    <section class="customers-filters"> 
+        <div class="customer-filter">
+            <label for="customer-search">Nombre y apellido</label>
+            <input type="search" id="customer-search" placeholder="Buscar por nombre..."/>
+        </div>
+        <div class="customer-filter">
+            <label for="customer-phone-filter">Teléfono</label>
+            <input type="search" id="customer-phone-filter" placeholder="Buscar teléfono..."/>
+        </div>
+        <div class="customer-filter">
+            <label for="customer-email-filter">Email</label>
+            <input type="search" id="customer-email-filter" placeholder="Buscar email..."/>
+        </div>
+        <div class="customer-filter">
+            <label for="customer-document-filter">Documento</label>
+            <input type="search" id="customer-document-filter" placeholder="Buscar documento..."/>
+        </div>
+        <div class="customer-filter">
+            <label for="customer-status">Estado</label>
+            <select id="customer-status">
+                <option value="all">Todos</option>
+                <option value="active">Activos</option>
+                <option value="inactive">Inactivos</option>
+            </select>
+        </div>
+        <div class="customer-filter customer-filter-button">
+            <span class="customer-filter-spacer"></span>
+            <button id="search-customers" class="btn btn-primary" type="button">Buscar</button>
+        </div>
+    </section>
+
+    <section class="crud-table-container" id="customers-crud">   </section>
+
+    <!-- Modal de alta y edición -->
+    <div id="customer-modal" class="modal-overlay" hidden>
+        <div class="modal">
+
+            <div class="modal-header">
+                <h2 id="customer-modal-title">Nuevo cliente</h2>
+                <button type="button" class="modal-close" id="customer-modal-close">×</button>
+            </div>
+            <form id="customer-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="customer-name">Nombre *</label>
+                        <input type="text" id="customer-name" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-document">Documento *</label>
+                        <input type="text" id="customer-document" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-phone">Teléfono</label>
+                        <input type="text" id="customer-phone"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-email">Email</label>
+                        <input type="email" id="customer-email"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-address">Dirección</label>
+                        <input type="text" id="customer-address"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-city">Ciudad</label>
+                        <input type="text" id="customer-city"/>
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label for="customer-observations">Observaciones</label>
+                        <textarea id="customer-observations" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="customer-modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

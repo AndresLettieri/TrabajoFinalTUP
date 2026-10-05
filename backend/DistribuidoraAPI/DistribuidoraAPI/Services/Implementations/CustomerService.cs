@@ -28,6 +28,12 @@ public class CustomerService : ICustomerService
         return customers.Select(Map).ToList();
     }
 
+    public async Task<IEnumerable<CustomerResponseDto>> GetByFilter(CustomerFilterDto filter)
+    {
+        var customers = await _unitOfWork.Customers.GetFilteredCustomers(filter.Name, filter.Document, filter.Phone, filter.Email, filter.Active);
+        return customers.Select(Map).ToList();
+    }
+
     public async Task<CustomerResponseDto> GetById(int id)
     {
         var customer = await _unitOfWork.Customers.GetActiveCustomerById(id);

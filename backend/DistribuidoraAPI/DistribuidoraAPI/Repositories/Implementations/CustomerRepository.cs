@@ -29,4 +29,20 @@ public class CustomerRepository : RepositoryBase<Customer>, ICustomerRepository
             .Where(c => c.Id == id && c.Active)
             .FirstOrDefaultAsync();
     }
+
+    public async Task<IEnumerable<Customer>> GetFilteredCustomers(string? name, string? document, string? phone, string? email, bool? active)
+    {
+        var query = _dbSet.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(name))
+            query = query.Where(c => c.Name.ToLower().Contains(name.ToLower()));
+        if (!string.IsNullOrWhiteSpace(document))
+            query = query.Where(c => c.Document.ToLower().Contains(document.ToLower()));
+        if (!string.IsNullOrWhiteSpace(phone))
+            query = query.Where(c => c.Phone != null && c.Phone.ToLower().Contains(phone.ToLower()));
+        if (!string.IsNullOrWhiteSpace(email))
+            query = query.Where(c => c.Email != null && c.Email.ToLower().Contains(email.ToLower()));
+        if (active.HasValue)
+            query = query.Where(c => c.Active == active.Value);
+        return await query.OrderBy(c => c.Name).ToListAsync();
+    }
 }
