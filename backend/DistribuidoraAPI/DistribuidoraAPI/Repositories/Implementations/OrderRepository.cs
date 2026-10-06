@@ -52,6 +52,30 @@ public class OrderRepository : RepositoryBase<Order>, IOrderRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Order>> GetSalesBetweenDates(DateTime dateFrom, DateTime dateToInclusive, int? customerId = null, int? sellerId = null)
+    {
+        var query = _dbSet
+            .AsNoTracking()
+            .Include(order => order.Customer)
+            .Include(order => order.User)
+            .Include(order => order.PaymentMethod)
+            .Include(order => order.Details)
+                .ThenInclude(detail => detail.Product)
+            .Where(order => !order.Cancelled && order.Date >= dateFrom && order.Date <= dateToInclusive)
+            .AsQueryable();
+
+        if (customerId.HasValue)
+            query = query.Where(order => order.CustomerId == customerId.Value);
+
+        if (sellerId.HasValue)
+            query = query.Where(order => order.UserId == sellerId.Value);
+
+        return await query
+            .OrderByDescending(order => order.Date)
+            .ThenByDescending(order => order.Number)
+            .ToListAsync();
+    }
+
     public async Task<Order?> GetByIdWithDetails(int id)
     {
         return await _dbSet

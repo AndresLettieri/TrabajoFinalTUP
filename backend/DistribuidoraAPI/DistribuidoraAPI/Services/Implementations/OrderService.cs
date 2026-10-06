@@ -1,5 +1,6 @@
 using System.Data;
 using DistribuidoraAPI.DTOs.Order;
+using DistribuidoraAPI.DTOs.Reports;
 using DistribuidoraAPI.Enums;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
@@ -30,6 +31,83 @@ public class OrderService : IOrderService
             normalizedFilters.Number);
 
         return orders.Select(Map).ToList();
+    }
+
+    public async Task<SalesReportResponseDto> GetSalesReport(DateTime? dateFrom, DateTime? dateTo, int? customerId = null, int? sellerId = null)
+    {
+        if (!dateFrom.HasValue || !dateTo.HasValue)
+            throw new ArgumentException("Las fechas desde y hasta son obligatorias");
+
+        if (customerId.HasValue && customerId.Value <= 0)
+            throw new ArgumentException("El cliente debe ser mayor que cero");
+
+        if (sellerId.HasValue && sellerId.Value <= 0)
+            throw new ArgumentException("El vendedor debe ser mayor que cero");
+
+        var startDate = dateFrom.Value.Date;
+        var endDate = dateTo.Value.Date;
+        if (startDate > endDate)
+            throw new ArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
+
+        var endDateInclusive = endDate == DateTime.MaxValue.Date
+            ? DateTime.MaxValue
+            : endDate.AddDays(1).AddTicks(-1);
+        var orders = (await _unitOfWork.Orders.GetSalesBetweenDates(startDate, endDateInclusive, customerId, sellerId)).ToList();
+
+        return new SalesReportResponseDto
+        {
+            DateFrom = startDate,
+            DateTo = endDate,
+            SalesCount = orders.Count,
+            TotalAmount = orders.Sum(order => order.Total),
+            Sales = orders.Select(Map).ToList()
+        };
+    }
+
+    public async Task<ProfitReportResponseDto> GetProfitReport(DateTime? dateFrom, DateTime? dateTo)
+    {
+        if (!dateFrom.HasValue || !dateTo.HasValue)
+            throw new ArgumentException("Las fechas desde y hasta son obligatorias");
+
+        var startDate = dateFrom.Value.Date;
+        var endDate = dateTo.Value.Date;
+        if (startDate > endDate)
+            throw new ArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
+
+        var endDateInclusive = endDate == DateTime.MaxValue.Date
+            ? DateTime.MaxValue
+            : endDate.AddDays(1).AddTicks(-1);
+        var orders = await _unitOfWork.Orders.GetSalesBetweenDates(startDate, endDateInclusive);
+        var sales = orders.Select(order => new ProfitReportSaleDto
+        {
+            Id = order.Id,
+            Number = order.Number,
+            Date = order.Date,
+            CustomerName = order.Customer.Name,
+            SellerName = order.User.Name,
+            Total = order.Total,
+            Profit = order.Details.Sum(CalculateLineProfit),
+            Details = order.Details.Select(detail => new ProfitReportDetailDto
+            {
+                ProductId = detail.ProductId,
+                ProductCode = detail.Product.Code,
+                ProductDescription = detail.Product.Description,
+                Quantity = detail.Quantity,
+                SalePrice = detail.SalePrice,
+                PurchasePrice = detail.PurchasePrice,
+                Subtotal = detail.Subtotal,
+                Profit = CalculateLineProfit(detail)
+            }).ToList()
+        }).ToList();
+
+        return new ProfitReportResponseDto
+        {
+            DateFrom = startDate,
+            DateTo = endDate,
+            SalesCount = sales.Count,
+            TotalProfit = sales.Sum(sale => sale.Profit),
+            Sales = sales
+        };
     }
 
     public async Task<OrderResponseDto> GetById(int id)
@@ -240,6 +318,8 @@ public class OrderService : IOrderService
             }).ToList()
         };
     }
+
+    private static decimal CalculateLineProfit(OrderDetail detail) => (detail.SalePrice - detail.PurchasePrice) * detail.Quantity;
 
     private static OrderFilterData NormalizeFilters(OrderFilterRequest? filters)
     {

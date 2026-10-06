@@ -1,4 +1,5 @@
 using DistribuidoraAPI.DTOs.Purchase;
+using DistribuidoraAPI.DTOs.Reports;
 using DistribuidoraAPI.Enums;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
@@ -29,6 +30,34 @@ public class PurchaseService : IPurchaseService
             normalizedFilters.Number);
 
         return purchases.Select(Map).ToList();
+    }
+
+    public async Task<PurchaseReportResponseDto> GetPurchaseReport(DateTime? dateFrom, DateTime? dateTo, int? vendorId = null)
+    {
+        if (!dateFrom.HasValue || !dateTo.HasValue)
+            throw new ArgumentException("Las fechas desde y hasta son obligatorias");
+
+        if (dateFrom.Value.Date > dateTo.Value.Date)
+            throw new ArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
+
+        if (vendorId.HasValue && vendorId.Value <= 0)
+            throw new ArgumentException("El proveedor debe ser mayor que cero");
+
+        var purchases = (await GetAll(new PurchaseFilterRequest
+        {
+            DateFrom = dateFrom.Value.Date,
+            DateTo = dateTo.Value.Date,
+            VendorId = vendorId
+        })).ToList();
+
+        return new PurchaseReportResponseDto
+        {
+            DateFrom = dateFrom.Value.Date,
+            DateTo = dateTo.Value.Date,
+            PurchaseCount = purchases.Count,
+            TotalAmount = purchases.Sum(purchase => purchase.Total),
+            Purchases = purchases
+        };
     }
 
     public async Task<PurchaseResponseDto> GetById(int id)
