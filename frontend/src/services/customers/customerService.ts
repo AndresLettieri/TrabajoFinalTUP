@@ -70,23 +70,13 @@ export async function createCustomer(customer: CreateCustomerRequest): Promise<C
     if (!currentUser) 
         throw new Error("No hay un usuario autenticado.");
 
-    //TODO: Mock para usar json.DB. Se debe reemplazar con la lógica real cuando se tenga un backend.
-    const newCustomer: Customer = {
-        id: 0,
-        name: customer.name,
-        document: customer.document,
-        phone: customer.phone,
-        email: customer.email,
-        address: customer.address,
-        city: customer.city,
-        observations: customer.observations,
-        active: true,
-        createdAt: new Date().toISOString(),
-        createdBy: currentUser.id,
-        modifiedAt: null,
-        modifiedBy: null
-    };
-    return post<Customer>("/customers", newCustomer);
+
+    return post<Customer>( 
+        "/customers", 
+        { 
+            ...customer
+        } 
+    );
 }
 
 export async function updateCustomer(id: number,customer: CreateCustomerRequest): Promise<Customer> {
@@ -96,19 +86,11 @@ export async function updateCustomer(id: number,customer: CreateCustomerRequest)
     if (!currentUser) 
         throw new Error("No hay un usuario autenticado.");
 
-    //TODO: Mock para usar json.DB. Se debe reemplazar con la lógica real cuando se tenga un backend.
-    const updatedCustomer: Customer = {
-        id,
-        ...customer,
-        active: true,
-        createdAt: new Date().toISOString(),
-        createdBy: currentUser.id,
-        modifiedAt: new Date().toISOString(),
-        modifiedBy: currentUser.id
-    };
-    return put<Customer>(
-        `/customers/${id}`,
-        updatedCustomer
+    return put<Customer>( 
+        `/customers/${id}`, 
+        { 
+            ...customer
+        } 
     );
 }
 
