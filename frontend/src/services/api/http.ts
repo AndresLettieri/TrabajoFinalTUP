@@ -1,5 +1,5 @@
 import { getCurrentUser } from "../auth/authSession";
-
+import { withGlobalLoading } from "../../components/loading/withGlobalLoading";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -13,19 +13,43 @@ function getUserId(): number {
     return currentUser.id;
 }
 
+async function request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+): Promise<T> {
+    return withGlobalLoading(async () => {
+        const response = await fetch(`${API_URL}${endpoint}`, options);
 
+        if (!response.ok) {
+            throw new Error("Error al realizar la solicitud");
+        }
 
-export async function get<T>(endpoint: string): Promise<T> {
-  const response = await fetch(`${API_URL}${endpoint}`);
+        if (response.status === 204) {
+            return undefined as T;
+        }
 
-  if (!response.ok) {
-    throw new Error("Error al realizar la solicitud");
-  }
-
-  return response.json();
+        return response.json() as Promise<T>;
+    });
 }
 
-export async function getByFilter<T>(endpoint: string, filter: Record<string, unknown>): Promise<T> {
+function jsonOptions(method: string, body: unknown): RequestInit {
+    return {
+        method,
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    };
+}
+
+export async function get<T>(endpoint: string): Promise<T> {
+    return request<T>(endpoint);
+}
+
+export async function getByFilter<T>(
+    endpoint: string,
+    filter: Record<string, unknown>
+): Promise<T> {
     const params = new URLSearchParams();
 
     Object.entries(filter).forEach(([key, value]) => {
@@ -37,17 +61,14 @@ export async function getByFilter<T>(endpoint: string, filter: Record<string, un
     const query = params.toString();
     const url = query ? `${endpoint}?${query}` : endpoint;
 
-    const response = await fetch(`${API_URL}${url}`);
-
-    if (!response.ok) {
-        throw new Error("Error al realizar la solicitud");
-    }
-
-    return response.json();
+    return request<T>(url);
 }
 
-export async function post<T>(endpoint: string,body: unknown, includeUserId = true): Promise<T> {
-  
+export async function post<T>(
+    endpoint: string,
+    body: unknown,
+    includeUserId = true
+): Promise<T> {
     const requestBody = includeUserId
         ? {
             ...body as object,
@@ -55,54 +76,39 @@ export async function post<T>(endpoint: string,body: unknown, includeUserId = tr
         }
         : body;
 
-    const response = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(requestBody),
-    });
-
-  if (!response.ok) {
-    throw new Error("Error al realizar la solicitud");
-  }
-
-  return response.json();
+    return request<T>(
+        endpoint,
+        jsonOptions("POST", requestBody)
+    );
 }
 
-export async function put<T>(endpoint: string,body: unknown): Promise<T> {
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        ...body as object,
-        userId: getUserId()
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error("Error al realizar la solicitud");
-  }
-
-  return response.json();
+export async function put<T>(
+    endpoint: string,
+    body: unknown
+): Promise<T> {
+    return request<T>(
+        endpoint,
+        jsonOptions("PUT", {
+            ...body as object,
+            userId: getUserId()
+        })
+    );
 }
 
 export async function del<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`, {
-        method: "DELETE",
-        headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                userId: getUserId()
-            })
-    });
+    return request<T>(
+        endpoint,
+        jsonOptions("DELETE", {
+            userId: getUserId()
+        })
+    );
+}
 
-  if (response.status === 204) {
-      return undefined as T;
-  }
-
-  return response.json();
+export async function patch<T>(endpoint: string): Promise<T> {
+    return request<T>(
+        endpoint,
+        jsonOptions("PATCH", {
+            userId: getUserId()
+        })
+    );
 }
