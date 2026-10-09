@@ -4,6 +4,7 @@ export interface PaginationOptions {
     onPageChange: (page: number) => void;
 }
 
+
 export function renderPagination(container: HTMLElement, options: PaginationOptions): void {
     const {currentPage, totalPages, onPageChange} = options;
 
