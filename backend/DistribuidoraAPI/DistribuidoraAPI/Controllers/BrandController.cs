@@ -1,8 +1,6 @@
 using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Brand;
-using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.Services;
-using DistribuidoraAPI.Services.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DistribuidoraAPI.Controllers;
@@ -92,6 +90,20 @@ public class BrandController : ControllerBase
         try
         {
             await _brandService.Delete(id, auditUserDto.UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    [HttpPatch("{id:int}/activate")]
+    public async Task<IActionResult> Activate(int id, [FromBody] AuditUserDto auditUserDto)
+    {
+        try
+        {
+            await _brandService.Activate(id, auditUserDto.UserId);
             return NoContent();
         }
         catch (KeyNotFoundException ex)

@@ -11,4 +11,6 @@ public interface ICustomerService
     Task<CustomerResponseDto> Update(int id, UpdateCustomerRequest request);
     Task Delete(int id, int userId);
     Task<PagedResultDto<CustomerResponseDto>> GetByFilter(CustomerFilterDto filter);
+    Task Activate(int id, int userId);
+
 }

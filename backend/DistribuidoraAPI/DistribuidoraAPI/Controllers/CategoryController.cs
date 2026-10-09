@@ -86,12 +86,26 @@ public class CategoryController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, [FromBody] int userId)
+    public async Task<IActionResult> Delete(int id, [FromBody] AuditUserDto auditUserDto)
     {
         
         try
         {
-            await _categoryService.Delete(id, userId);
+            await _categoryService.Delete(id, auditUserDto.UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    [HttpPatch("{id:int}/activate")]
+    public async Task<IActionResult> Activate(int id, [FromBody] AuditUserDto auditUserDto)
+    {
+        try
+        {
+            await _categoryService.Activate(id, auditUserDto.UserId);
             return NoContent();
         }
         catch (KeyNotFoundException ex)

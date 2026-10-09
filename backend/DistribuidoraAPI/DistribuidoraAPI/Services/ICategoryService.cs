@@ -11,5 +11,5 @@ public interface ICategoryService
     Task<CategoryResponseDto> Update(int id, UpdateCategoryRequest request);
     Task Delete(int id, int userId);
     Task<PagedResultDto<CategoryResponseDto>> GetByFilter(CategoryFilterDto filter);
-
+    Task Activate(int id, int userId);
 }

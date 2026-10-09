@@ -146,4 +146,20 @@ public class CategoryService : ICategoryService
             Active = category.Active
         };
     }
+
+    public async Task Activate(int id, int userId)
+    {
+        var category = await _unitOfWork.Categories.GetByIdAsync(id);
+
+        if (category == null)
+            throw new KeyNotFoundException($"No se encontró la categoría con ID {id}");
+
+
+        category.Active = true;
+        category.ModifiedAt = DateTime.UtcNow;
+        category.ModifiedBy = userId;
+
+        _unitOfWork.Categories.Update(category);
+        await _unitOfWork.SaveChanges();
+    }
 }   
