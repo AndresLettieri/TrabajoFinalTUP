@@ -1,7 +1,7 @@
 import customersHtml from "./customers.html?raw";
 
 import { renderLayout } from "../shared/layout";
-import { getCustomerByFilter, createCustomer, updateCustomer, delCustomer, type CustomerFilter, type Customer} from "../../services/customers/customerService";
+import { getCustomerByFilter, createCustomer, updateCustomer, delCustomer, activateCustomer, type CustomerFilter, type Customer} from "../../services/customers/customerService";
 import { renderPagination } from "../../components/pagination/pagination";
 import { getCrudStateContainer, renderCrudStates, showCrudState } from "../../components/crud-state/crudState";
 import { createPaginationState } from "../../components/pagination/paginationState";
@@ -359,7 +359,7 @@ async function handleCustomerAction(event: MouseEvent): Promise<void> {
             const customer = pagination.items.find(customer => Number(customer.id) === customerId);
             if (!customer) 
                 return;
-            await updateCustomer(customerId, customer);
+            await activateCustomer(customerId); 
             alert("Cliente activado exitosamente.");
             await searchCustomers();
         } catch (error) {

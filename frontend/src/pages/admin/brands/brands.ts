@@ -1,7 +1,7 @@
 import brandsHtml from "./brands.html?raw";
 
 import { renderLayout } from "../../shared/layout";
-import { getBrandByFilter, createBrand, updateBrand, delBrand, type BrandFilter, type Brand} from "../../../services/brands/brandService";
+import { getBrandByFilter, createBrand, updateBrand, delBrand, activateBrand, type BrandFilter, type Brand} from "../../../services/brands/brandService";
 import { renderPagination } from "../../../components/pagination/pagination";
 import { getCrudStateContainer, renderCrudStates, showCrudState } from "../../../components/crud-state/crudState";
 import { createPaginationState } from "../../../components/pagination/paginationState";
@@ -314,7 +314,7 @@ async function handleBrandAction(event: MouseEvent): Promise<void> {
             const brand = pagination.items.find(brand => Number(brand.id) === brandId);
             if (!brand) 
                 return;
-            await updateBrand(brandId, brand);
+            await activateBrand(brandId);
             alert("Marca activada exitosamente.");
             await searchBrands();
         } catch (error) {

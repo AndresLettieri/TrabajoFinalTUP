@@ -1,4 +1,5 @@
 import { get, getByFilter, post, put, del } from "../api/http";
+import type { PagedResult } from "../../types/pagination";
 
 export interface Customer {
     id: number;
@@ -36,14 +37,6 @@ export interface CreateCustomerRequest {
     observations: string | null;
 }
 
-export interface PagedResult<T> {
-    items: T[];
-    totalItems: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-}
-
 export async function getCustomers(): Promise<Customer[]> {
     return get<Customer[]>("/customers");
 }
@@ -75,5 +68,14 @@ export async function updateCustomer(id: number,customer: CreateCustomerRequest)
 export async function delCustomer(id: number): Promise<Customer> {
     return del<Customer>(
         `/customers/${id}`
+    );
+}
+
+import { patch } from "../api/http";
+
+export async function activateCustomer(id: number): Promise<Customer> {
+
+    return patch<Customer>(
+        `/customers/${id}/activate`
     );
 }

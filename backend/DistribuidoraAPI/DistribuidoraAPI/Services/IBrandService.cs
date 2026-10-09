@@ -12,5 +12,7 @@ public interface IBrandService
     Task<BrandResponseDto> Update(int id, UpdateBrandRequest request);
     Task Delete(int id, int userId);
     Task<PagedResultDto<BrandResponseDto>> GetByFilter(BrandFilterDto filter);
+    Task Activate(int id, int userId);
+
 
 }
