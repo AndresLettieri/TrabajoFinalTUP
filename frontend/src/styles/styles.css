@@ -115,6 +115,29 @@ button {
     background-color: #d1d5db;
 }
 
+.button-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: button-spin 0.7s linear infinite;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.is-loading {
+    cursor: wait;
+    opacity: 0.8;
+}
+
+@keyframes button-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* =========================
    NOT FOUND
    ========================= */
@@ -857,16 +880,16 @@ button {
 }
 
 /* =========================
-   CLIENTES - GENERAL
+    CRUD - GENERAL
    ========================= */
 
-.customers-page {
+.crud-page {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-.customers-header {
+.crud-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -874,17 +897,17 @@ button {
   margin-bottom: 24px;
 }
 
-.customers-header h2 {
+.crud-header h2 {
   margin-bottom: 6px;
   font-size: 24px;
 }
 
-.customers-header p {
+.crud-header p {
   color: var(--color-texto-secundario);
   font-size: 14px;
 }
 
-.customers-header .btn {
+.crud-header .btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -893,21 +916,21 @@ button {
 }
 
 @media (max-width: 768px) {
-  .customers-header {
+  .crud-header {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .customers-header .btn {
+  .crud-header .btn {
     width: 100%;
   }
 }
 
 /* =========================
-   CLIENTES - FILTROS
+   CRUD - FILTROS
    ========================= */
 
-.customers-filters {
+.crud-filters {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
@@ -918,22 +941,22 @@ button {
   border-radius: 8px;
 }
 
-.customer-filter {
+.crud-filter {
   display: flex;
   flex-direction: column;
   gap: 7px;
   min-width: 0;
 }
 
-.customer-filter label {
+.crud-filter label {
   height: 16px;
   line-height: 16px;
   font-size: 14px;
   font-weight: 600;
 }
 
-.customer-filter input,
-.customer-filter select {
+.crud-filter input,
+.crud-filter select {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -947,31 +970,31 @@ button {
   border-radius: 6px;
 }
 
-.customer-filter input:focus,
-.customer-filter select:focus {
+.crud-filter input:focus,
+.crud-filter select:focus {
   outline: 2px solid var(--color-focus);
   outline-offset: 1px;
 }
 
-.customers-filters > .btn {
+.crud-filters > .btn {
   box-sizing: border-box;
   align-self: end;
   height: 40px;
   white-space: nowrap;
 }
 
-.customer-filter-spacer {
+.crud-filter-spacer {
   height: 16px;
 }
 
-.customer-filter-button .btn {
+.crud-filter-button .btn {
   width: 100%;
   height: 40px;
 }
 
 
 @media (max-width: 768px) {
-  .customers-filters {
+  .crud-filters {
     grid-template-columns: 1fr;
     padding: 16px;
     gap: 14px;

@@ -2,6 +2,7 @@ using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DistribuidoraAPI.Controllers;
 
@@ -24,7 +25,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("getByFilter")]
-    public async Task<ActionResult<IEnumerable<CustomerResponseDto>>> GetByFilter([FromQuery] CustomerFilterDto filter)
+    public async Task<ActionResult<PagedResultDto<CustomerResponseDto>>> GetByFilter([FromQuery] CustomerFilterDto filter)
     {
         var customers = await _customerService.GetByFilter(filter);
         return Ok(customers);

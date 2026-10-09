@@ -1,5 +1,4 @@
-import { get, post, put, del } from "../api/http";
-import { getCurrentUser } from "../auth/authSession";
+import { get, getByFilter, post, put, del } from "../api/http";
 
 export interface Customer {
     id: number;
@@ -17,12 +16,14 @@ export interface Customer {
     modifiedBy: number | null;
 }
 
-export interface CustomerFilter {
+export interface CustomerFilter  {
     name?: string;
     phone?: string;
     email?: string;
     document?: string;
     active?: boolean;
+    page?: number;
+    pageSize?: number;
 }
 
 export interface CreateCustomerRequest {
@@ -35,42 +36,24 @@ export interface CreateCustomerRequest {
     observations: string | null;
 }
 
+export interface PagedResult<T> {
+    items: T[];
+    totalItems: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+}
 
-export async function getCustomers(filter?: CustomerFilter): Promise<Customer[]> {
-    const customers = await get<Customer[]>("/customers");
-    if (!filter) 
-        return customers;
+export async function getCustomers(): Promise<Customer[]> {
+    return get<Customer[]>("/customers");
+}
 
-    return customers.filter(customer => {
-        if (filter.name && !customer.name.toLowerCase().includes(filter.name.toLowerCase()))
-            return false;
-
-        if (filter.phone && !customer.phone?.includes(filter.phone)) 
-            return false;
-        
-
-        if (filter.email && !customer.email?.toLowerCase().includes(filter.email.toLowerCase())) 
-            return false;
-        
-        if (filter.document && !customer.document.includes(filter.document)) 
-            return false;
-        
-
-        if (filter.active !== undefined && customer.active !== filter.active) 
-            return false;
-        
-        return true;
-    });
+export async function getCustomerByFilter(filter?: CustomerFilter): Promise<PagedResult<Customer>> {
+    return getByFilter<PagedResult<Customer>>("/customers/getByFilter", (filter || {}) as Record<string, unknown>);
 }
 
 export async function createCustomer(customer: CreateCustomerRequest): Promise<Customer> {
-
-    const currentUser = getCurrentUser();
-
-    if (!currentUser) 
-        throw new Error("No hay un usuario autenticado.");
-
-
+ 
     return post<Customer>( 
         "/customers", 
         { 
@@ -81,12 +64,7 @@ export async function createCustomer(customer: CreateCustomerRequest): Promise<C
 
 export async function updateCustomer(id: number,customer: CreateCustomerRequest): Promise<Customer> {
 
-    const currentUser = getCurrentUser();
-
-    if (!currentUser) 
-        throw new Error("No hay un usuario autenticado.");
-
-    return put<Customer>( 
+      return put<Customer>( 
         `/customers/${id}`, 
         { 
             ...customer

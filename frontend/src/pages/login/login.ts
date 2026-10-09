@@ -3,6 +3,7 @@ import { login } from "../../services/auth/authService";
 import { saveSession } from "../../services/auth/authSession";
 import { navigate } from "../../router/router";
 import type { LoginRequest } from "../../types/auth";
+import { withLoadingButton } from "../../components/loading/withLoadingButton";
 
 export function renderLogin(): void {
 
@@ -19,31 +20,37 @@ export function renderLogin(): void {
 
     form.addEventListener("submit", async (e: SubmitEvent) => {
         e.preventDefault();
-        const credentials: LoginRequest = {
-            email: inputEmail.value,
-            password: inputPassword.value,
-        };
+        const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+        void withLoadingButton(
+        submitButton,
+        async () => {
+            const credentials: LoginRequest = {
+                email: inputEmail.value,
+                password: inputPassword.value,
+            };
 
-        try {
-            const user = await login(credentials);
+            try {
+                const user = await login(credentials);
 
-            if (!user) {
+                if (!user) {
+                    invalidCredentials();
+                    return;
+                }
+
+                saveSession(user);
+
+                if (user.role === "Admin")
+                    navigate("/admin/dashboard");
+                else 
+                    navigate("/seller/dashboard");
+            
+            } catch (error) {
+                console.error("Error al iniciar sesión:", error);
                 invalidCredentials();
-                return;
             }
-
-            saveSession(user);
-
-            if (user.role === "Admin")
-                navigate("/admin/dashboard");
-            else 
-                navigate("/seller/dashboard");
-        
-        } catch (error) {
-            console.error("Error al iniciar sesión:", error);
-            invalidCredentials();
-        }
-    
+        },
+            "Ingresando..."
+        );
     });
 
     function invalidCredentials() {

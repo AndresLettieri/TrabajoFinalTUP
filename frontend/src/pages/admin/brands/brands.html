@@ -1,3 +1,57 @@
-<section class="page">
-    <h2>Marcas</h2>
+<section class="crud-page">
+
+    <div class="crud-header">
+        <div>
+            <h2>Marcas</h2>
+        </div>
+
+        <button id="new-brand-button" class="btn btn-primary" type="button">
+            <span>＋ Nueva marca</span>
+        </button>
+    </div>
+
+    <section class="crud-filters"> 
+        <div class="crud-filter">
+            <label for="brand-search">Nombre</label>
+            <input type="search" id="brand-search" placeholder="Buscar por nombre..."/>
+        </div>
+        <div class="crud-filter">
+            <label for="brand-status">Estado</label>
+            <select id="brand-status">
+                <option value="all">Todos</option>
+                <option value="active">Activos</option>
+                <option value="inactive">Inactivos</option>
+            </select>
+        </div>
+        <div class="crud-filter crud-filter-button">
+            <span class="crud-filter-spacer"></span>
+            <button id="search-brands" class="btn btn-primary" type="button">Buscar</button>
+        </div>
+    </section>
+
+    <section class="crud-table-container" id="brands-crud">   </section>
+
+    <!-- Modal de alta y edición -->
+    <div id="brand-modal" class="modal-overlay" hidden>
+        <div class="modal">
+
+            <div class="modal-header">
+                <h2 id="brand-modal-title">Nueva marca</h2>
+                <button type="button" class="modal-close" id="brand-modal-close">×</button>
+            </div>
+            <form id="brand-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="brand-name">Nombre *</label>
+                        <input type="text" id="brand-name" required/>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="brand-modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar marca</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>

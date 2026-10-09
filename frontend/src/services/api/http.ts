@@ -25,6 +25,27 @@ export async function get<T>(endpoint: string): Promise<T> {
   return response.json();
 }
 
+export async function getByFilter<T>(endpoint: string, filter: Record<string, unknown>): Promise<T> {
+    const params = new URLSearchParams();
+
+    Object.entries(filter).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+            params.append(key, String(value));
+        }
+    });
+
+    const query = params.toString();
+    const url = query ? `${endpoint}?${query}` : endpoint;
+
+    const response = await fetch(`${API_URL}${url}`);
+
+    if (!response.ok) {
+        throw new Error("Error al realizar la solicitud");
+    }
+
+    return response.json();
+}
+
 export async function post<T>(endpoint: string,body: unknown, includeUserId = true): Promise<T> {
   
     const requestBody = includeUserId
@@ -79,11 +100,9 @@ export async function del<T>(endpoint: string): Promise<T> {
             })
     });
 
+  if (response.status === 204) {
+      return undefined as T;
+  }
 
-
-    if (!response.ok) {
-        throw new Error("Error al realizar la solicitud");
-    }
-
-    return response.json();
+  return response.json();
 }
