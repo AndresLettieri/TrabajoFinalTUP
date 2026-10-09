@@ -1,13 +1,14 @@
 import customersHtml from "./customers.html?raw";
 
 import { renderLayout } from "../shared/layout";
-import { getCustomers, createCustomer, updateCustomer, delCustomer, type CustomerFilter, type Customer} from "../../services/customers/customerService";
+import { getCustomerByFilter, createCustomer, updateCustomer, delCustomer, type CustomerFilter, type Customer} from "../../services/customers/customerService";
 import { renderPagination } from "../../components/pagination/pagination";
 import { getCrudStateContainer, renderCrudStates, showCrudState } from "../../components/crud-state/crudState";
+import { createPaginationState } from "../../components/pagination/paginationState";
+import { withLoadingButton } from "../../components/loading/withLoadingButton";
 
-let currentPage = 1;
-const pageSize = 5;
-let currentCustomers: Customer[] = [];
+const pagination = createPaginationState<Customer>();
+
 let editingCustomerId: number | null = null;
 let currentSortColumn: keyof Customer | null = null;
 let currentSortDirection: "asc" | "desc" | null = null;
@@ -25,7 +26,7 @@ export function renderCustomers(): void {
     const searchButton = document.querySelector<HTMLButtonElement>("#search-customers");
     searchButton?.addEventListener("click", searchCustomers);
 
-    const searchInputs = document.querySelectorAll<HTMLInputElement>(".customers-filters input");
+    const searchInputs = document.querySelectorAll<HTMLInputElement>(".crud-filters input");
     searchInputs.forEach(input => {
         input.addEventListener("keydown", (event) => {
             if (event.key === "Enter") {
@@ -46,13 +47,34 @@ export function renderCustomers(): void {
     cancelModalButton?.addEventListener("click", closeCustomerModal);
 
     const customerForm = document.querySelector<HTMLFormElement>("#customer-form");
-    customerForm?.addEventListener("submit", handleCustomerSubmit);
+    customerForm?.addEventListener("submit", (event) => {
+    const submitButton = customerForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+    void withLoadingButton(
+        submitButton,
+        () => handleCustomerSubmit(event),
+        "Guardando..."
+    );
+});
 
     crudContainer.addEventListener("click",handleCustomerAction);
 }
 
 async function searchCustomers(): Promise<void> {
+    const searchButton = document.querySelector<HTMLButtonElement>("#search-customers");
 
+    await withLoadingButton(
+        searchButton,
+        async () => {
+            pagination.currentPage = 1;
+            await loadCustomers();
+        },
+        "Buscando..."
+    );
+
+}
+
+async function loadCustomers(): Promise<void> {   
     const nameInput = document.querySelector<HTMLInputElement>("#customer-search");
     const phoneInput = document.querySelector<HTMLInputElement>("#customer-phone-filter");
     const emailInput = document.querySelector<HTMLInputElement>("#customer-email-filter");
@@ -73,17 +95,25 @@ async function searchCustomers(): Promise<void> {
 
     try {
 
-        const customers = await getCustomers(filter);
-            if (customers.length === 0) {
-                showCrudState(crudContainer, "no-results");
-                return;
-            }
-            currentCustomers = customers;
-            currentPage = 1;
+        const customers = await getCustomerByFilter({
+            ...filter,
+            page: pagination.currentPage,
+            pageSize: pagination.pageSize
+        });
+        
+        if (customers.items.length === 0) {
+            pagination.items = [];
+            pagination.totalPages = 0;
 
-            showCrudState(crudContainer, "results");
+            showCrudState(crudContainer, "no-results");
+            return;
+        }
+        pagination.items = customers.items;
+        pagination.totalPages = customers.totalPages;
 
-            renderCustomersPage();
+        showCrudState(crudContainer, "results");
+
+        renderCustomersPage();
 
         } catch (error) {
             alert("Error al buscar clientes: " + error);
@@ -130,7 +160,7 @@ function renderCustomersTable(customers: Customer[]): void {
                         <th data-sort="active" class="${currentSortColumn === "active" ? "is-sorted" : ""}">
                             Estado${getSortIndicator("active")}
                         </th>
-                        <th>Acciones</th>
+                        <th class="crud-actions-heading">Acciones</th>
                     </tr>
                 </thead>
 
@@ -169,17 +199,9 @@ function renderCustomersTable(customers: Customer[]): void {
 
 }
 
-function getCurrentPageItems(): Customer[] {
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-
-    return currentCustomers.slice(start, end);
-}
-
 function renderCustomersPage(): void {
-    const pageItems = getCurrentPageItems();
 
-    renderCustomersTable(pageItems);
+    renderCustomersTable(pagination.items);
 
     const crudContainer = document.querySelector<HTMLElement>("#customers-crud");
 
@@ -196,14 +218,12 @@ function renderCustomersPage(): void {
     if (!paginationContainer) 
         return;
     
-    const totalPages = Math.ceil(currentCustomers.length / pageSize);
-
     renderPagination(paginationContainer, {
-        currentPage,
-        totalPages,
+        currentPage: pagination.currentPage,
+        totalPages: pagination.totalPages,
         onPageChange: (page) => {
-            currentPage = page;
-            renderCustomersPage();
+            pagination.currentPage = page;
+            loadCustomers();
         }
     });
 }
@@ -300,7 +320,7 @@ async function handleCustomerAction(event: MouseEvent): Promise<void> {
     //Editar cliente
     if (editButton) {
         const customerId = Number(editButton.dataset.customerId);
-        const customer = currentCustomers.find(customer => Number(customer.id) === customerId);
+        const customer = pagination.items.find(customer => Number(customer.id) === customerId);
         if (!customer) 
             return;
         openCustomerModal(customer);
@@ -336,7 +356,7 @@ async function handleCustomerAction(event: MouseEvent): Promise<void> {
             return;
 
         try {
-            const customer = currentCustomers.find(customer => Number(customer.id) === customerId);
+            const customer = pagination.items.find(customer => Number(customer.id) === customerId);
             if (!customer) 
                 return;
             await updateCustomer(customerId, customer);
@@ -364,7 +384,7 @@ function sortCustomers(column: keyof Customer): void {
     }
 
     if (currentSortColumn && currentSortDirection) {
-        currentCustomers.sort((a, b) => {
+        pagination.items.sort((a, b) => {
             const valueA = a[currentSortColumn!];
             const valueB = b[currentSortColumn!];
             if (valueA === valueB) 
@@ -390,7 +410,7 @@ function sortCustomers(column: keyof Customer): void {
         });
     }
 
-    renderCustomersPage();
+    renderCustomersTable(pagination.items);
 }
 
 function getSortIndicator(column: keyof Customer): string {

@@ -1,5 +1,8 @@
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Brand;
+using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.Services;
+using DistribuidoraAPI.Services.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DistribuidoraAPI.Controllers;
@@ -19,6 +22,14 @@ public class BrandController : ControllerBase
     public async Task<ActionResult<IEnumerable<BrandResponseDto>>> GetAll()
     {
         var brands = await _brandService.GetAll();
+        return Ok(brands);
+    }
+
+
+    [HttpGet("getByFilter")]
+    public async Task<ActionResult<PagedResultDto<BrandResponseDto>>> GetByFilter([FromQuery] BrandFilterDto filter)
+    {
+        var brands = await _brandService.GetByFilter(filter);
         return Ok(brands);
     }
 
@@ -76,11 +87,11 @@ public class BrandController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, [FromBody] int userId)
+    public async Task<IActionResult> Delete(int id, [FromBody] AuditUserDto auditUserDto)
     {
         try
         {
-            await _brandService.Delete(id, userId);
+            await _brandService.Delete(id, auditUserDto.UserId);
             return NoContent();
         }
         catch (KeyNotFoundException ex)

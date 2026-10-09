@@ -1,3 +1,4 @@
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
@@ -28,10 +29,18 @@ public class CustomerService : ICustomerService
         return customers.Select(Map).ToList();
     }
 
-    public async Task<IEnumerable<CustomerResponseDto>> GetByFilter(CustomerFilterDto filter)
+    public async Task<PagedResultDto<CustomerResponseDto>> GetByFilter(CustomerFilterDto filter)
     {
-        var customers = await _unitOfWork.Customers.GetFilteredCustomers(filter.Name, filter.Document, filter.Phone, filter.Email, filter.Active);
-        return customers.Select(Map).ToList();
+        var customers = await _unitOfWork.Customers.GetFilteredCustomers(filter);
+        
+        return new PagedResultDto<CustomerResponseDto>
+        {
+            Items = customers.Items.Select(Map).ToList(),
+            TotalItems = customers.TotalItems,
+            Page = customers.Page,
+            PageSize = customers.PageSize,
+            TotalPages = customers.TotalPages
+        };
     }
 
     public async Task<CustomerResponseDto> GetById(int id)

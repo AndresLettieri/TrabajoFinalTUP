@@ -1,4 +1,6 @@
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Brand;
+using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
 
@@ -25,6 +27,21 @@ public class BrandService : IBrandService
 
         return brands.Select(Map).ToList();
     }
+
+    public async Task<PagedResultDto<BrandResponseDto>> GetByFilter(BrandFilterDto filter)
+    {
+        var brands = await _unitOfWork.Brands.GetFilteredBrands(filter);
+
+        return new PagedResultDto<BrandResponseDto>
+        {
+            Items = brands.Items.Select(Map).ToList(),
+            TotalItems = brands.TotalItems,
+            Page = brands.Page,
+            PageSize = brands.PageSize,
+            TotalPages = brands.TotalPages
+        };
+    }
+
 
     public async Task<BrandResponseDto?> GetById(int id)
     {
@@ -102,7 +119,8 @@ public class BrandService : IBrandService
         return new BrandResponseDto
         {
             Id = brand.Id,
-            Name = brand.Name
+            Name = brand.Name,
+            Active = brand.Active
         };
     }
 

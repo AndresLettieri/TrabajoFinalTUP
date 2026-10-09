@@ -1,4 +1,6 @@
 using DistribuidoraAPI.Data;
+using DistribuidoraAPI.DTOs;
+using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,19 +32,47 @@ public class CustomerRepository : RepositoryBase<Customer>, ICustomerRepository
             .FirstOrDefaultAsync();
     }
 
-    public async Task<IEnumerable<Customer>> GetFilteredCustomers(string? name, string? document, string? phone, string? email, bool? active)
+    public async Task<PagedResultDto<Customer>> GetFilteredCustomers(CustomerFilterDto filter)
     {
         var query = _dbSet.AsQueryable();
-        if (!string.IsNullOrWhiteSpace(name))
-            query = query.Where(c => c.Name.ToLower().Contains(name.ToLower()));
-        if (!string.IsNullOrWhiteSpace(document))
-            query = query.Where(c => c.Document.ToLower().Contains(document.ToLower()));
-        if (!string.IsNullOrWhiteSpace(phone))
-            query = query.Where(c => c.Phone != null && c.Phone.ToLower().Contains(phone.ToLower()));
-        if (!string.IsNullOrWhiteSpace(email))
-            query = query.Where(c => c.Email != null && c.Email.ToLower().Contains(email.ToLower()));
-        if (active.HasValue)
-            query = query.Where(c => c.Active == active.Value);
-        return await query.OrderBy(c => c.Name).ToListAsync();
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
+            query = query.Where(c =>
+                c.Name.ToLower().Contains(filter.Name.ToLower()));
+
+        if (!string.IsNullOrWhiteSpace(filter.Document))
+            query = query.Where(c =>
+                c.Document.ToLower().Contains(filter.Document.ToLower()));
+
+        if (!string.IsNullOrWhiteSpace(filter.Phone))
+            query = query.Where(c =>
+                c.Phone != null &&
+                c.Phone.ToLower().Contains(filter.Phone.ToLower()));
+
+        if (!string.IsNullOrWhiteSpace(filter.Email))
+            query = query.Where(c =>
+                c.Email != null &&
+                c.Email.ToLower().Contains(filter.Email.ToLower()));
+
+        if (filter.Active.HasValue)
+            query = query.Where(c =>
+                c.Active == filter.Active.Value);
+
+        var totalItems = await query.CountAsync();
+
+        var customers = await query
+            .OrderBy(c => c.Name)
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToListAsync();
+
+        return new PagedResultDto<Customer>
+        {
+            Items = customers,
+            TotalItems = totalItems,
+            Page = filter.Page,
+            PageSize = filter.PageSize,
+            TotalPages = (int)Math.Ceiling((double)totalItems / filter.PageSize)
+        };
     }
 }
