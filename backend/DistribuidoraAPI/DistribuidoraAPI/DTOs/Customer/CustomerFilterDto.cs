@@ -1,6 +1,6 @@
 ﻿namespace DistribuidoraAPI.DTOs.Customer
 {
-    public class CustomerFilterDto
+    public class CustomerFilterDto : PaginationRequestDto
     {
         public string? Name { get; set; }
         public string? Document { get; set; }

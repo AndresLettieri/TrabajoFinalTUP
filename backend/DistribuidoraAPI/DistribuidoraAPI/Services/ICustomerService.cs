@@ -1,4 +1,5 @@
 using DistribuidoraAPI.DTOs.Customer;
+using DistribuidoraAPI.DTOs;
 
 namespace DistribuidoraAPI.Services;
 
@@ -9,5 +10,5 @@ public interface ICustomerService
     Task<CustomerResponseDto> Create(CreateCustomerRequest request);
     Task<CustomerResponseDto> Update(int id, UpdateCustomerRequest request);
     Task Delete(int id, int userId);
-    Task<IEnumerable<CustomerResponseDto>> GetByFilter(CustomerFilterDto filter);
+    Task<PagedResultDto<CustomerResponseDto>> GetByFilter(CustomerFilterDto filter);
 }
