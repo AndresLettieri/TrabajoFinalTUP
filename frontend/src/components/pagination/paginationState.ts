@@ -3,6 +3,7 @@ export interface PaginationState<T> {
     pageSize: number;
     items: T[];
     totalPages: number;
+    totalItems: number;
 }
 
 export function createPaginationState<T>(
@@ -12,6 +13,7 @@ export function createPaginationState<T>(
         currentPage: 1,
         pageSize,
         items: [],
-        totalPages: 0
+        totalPages: 0,
+        totalItems: 0
     };
 }
