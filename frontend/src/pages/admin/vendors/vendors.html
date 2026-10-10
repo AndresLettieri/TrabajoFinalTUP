@@ -1,3 +1,89 @@
-<section class="page">
-    <h2>Proveedores</h2>
+<section class="crud-page">
+
+    <div class="crud-header">
+        <div>
+            <h2>Proveedores</h2>
+        </div>
+
+        <button id="new-vendor-button" class="btn btn-primary" type="button">
+            <span>＋ Nuevo proveedor</span>
+        </button>
+    </div>
+
+    <section class="crud-filters"> 
+        <div class="crud-filter">
+            <label for="vendor-search">Nombre o razón social</label>
+            <input type="search" id="vendor-search" placeholder="Buscar por nombre o razón social..."/>
+        </div>
+        <div class="crud-filter">
+            <label for="vendor-phone-filter">Teléfono</label>
+            <input type="search" id="vendor-phone-filter" placeholder="Buscar teléfono..."/>
+        </div>
+        <div class="crud-filter">
+            <label for="vendor-email-filter">Email</label>
+            <input type="search" id="vendor-email-filter" placeholder="Buscar email..."/>
+        </div>
+        <div class="crud-filter">
+            <label for="vendor-city-filter">Ciudad</label>
+            <input type="search" id="vendor-city-filter" placeholder="Buscar ciudad..."/>
+        </div>
+        <div class="crud-filter">
+            <label for="vendor-status">Estado</label>
+            <select id="vendor-status">
+                <option value="all">Todos</option>
+                <option value="active">Activos</option>
+                <option value="inactive">Inactivos</option>
+            </select>
+        </div>
+        <div class="crud-filter crud-filter-button">
+            <span class="crud-filter-spacer"></span>
+            <button id="search-vendors" class="btn btn-primary" type="button">Buscar</button>
+        </div>
+    </section>
+
+    <section class="crud-table-container" id="vendors-crud">   </section>
+
+    <!-- Modal de alta y edición -->
+    <div id="vendor-modal" class="modal-overlay" hidden>
+        <div class="modal">
+
+            <div class="modal-header">
+                <h2 id="vendor-modal-title">Nuevo proveedor</h2>
+                <button type="button" class="modal-close" id="vendor-modal-close">×</button>
+            </div>
+            <form id="vendor-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="vendor-name">Nombre o razón social *</label>
+                        <input type="text" id="vendor-name" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="vendor-phone">Teléfono</label>
+                        <input type="text" id="vendor-phone"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="vendor-email">Email</label>
+                        <input type="email" id="vendor-email"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="vendor-address">Dirección</label>
+                        <input type="text" id="vendor-address"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="vendor-city">Ciudad</label>
+                        <input type="text" id="vendor-city"/>
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label for="vendor-observations">Observaciones</label>
+                        <textarea id="vendor-observations" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="vendor-modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar proveedor</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>

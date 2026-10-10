@@ -1,6 +1,8 @@
 using DistribuidoraAPI.DTOs;
+using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.DTOs.Vendor;
 using DistribuidoraAPI.Services;
+using DistribuidoraAPI.Services.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DistribuidoraAPI.Controllers;
@@ -20,6 +22,13 @@ public class VendorController : ControllerBase
     public async Task<ActionResult<IEnumerable<VendorResponseDto>>> GetAll()
     {
         var vendors = await _vendorService.GetAll();
+        return Ok(vendors);
+    }
+
+    [HttpGet("getByFilter")]
+    public async Task<ActionResult<PagedResultDto<VendorResponseDto>>> GetByFilter([FromQuery] VendorFilterDto filter)
+    {
+        var vendors = await _vendorService.GetByFilter(filter);
         return Ok(vendors);
     }
 
@@ -51,5 +60,20 @@ public class VendorController : ControllerBase
     {
         await _vendorService.Delete(id, auditUserDto.UserId);
         return NoContent();
+    }
+
+
+    [HttpPatch("{id:int}/activate")]
+    public async Task<IActionResult> Activate(int id, [FromBody] AuditUserDto auditUserDto)
+    {
+        try
+        {
+            await _vendorService.Activate(id, auditUserDto.UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
     }
 }
