@@ -6,6 +6,7 @@ import { renderPagination } from "../../../components/pagination/pagination";
 import { getCrudStateContainer, renderCrudStates, showCrudState } from "../../../components/crud-state/crudState";
 import { createPaginationState } from "../../../components/pagination/paginationState";
 import { withLoadingButton } from "../../../components/loading/withLoadingButton";
+import { sortItems } from "../../../utils/sort";
 
 const pagination = createPaginationState<Brand>();
 
@@ -100,12 +101,14 @@ async function loadBrands(): Promise<void> {
         if (brands.items.length === 0) {
             pagination.items = [];
             pagination.totalPages = 0;
+            pagination.totalItems = 0;
 
             showCrudState(crudContainer, "no-results");
             return;
         }
         pagination.items = brands.items;
         pagination.totalPages = brands.totalPages;
+        pagination.totalItems = brands.totalItems;
 
         showCrudState(crudContainer, "results");
 
@@ -130,7 +133,7 @@ function renderBrandsTable(brands: Brand[]): void {
         <div class="crud-table-header">
             <h3>Marcas</h3>
             <span class="crud-count">
-                ${brands.length} marcas
+                ${pagination.totalItems} marcas
             </span>
         </div>
 
@@ -255,8 +258,12 @@ async function handleBrandSubmit(event: SubmitEvent): Promise<void> {
         await searchBrands();
 
     } catch (error) {
+        const message = error instanceof Error
+        ? "Error: " + error.message
+        : "No se pudo crear la marca o actualizarla. Intentá nuevamente.";
+
         console.error("Error al crear la marca:",error);
-        alert("No se pudo crear la marca o actualizarla. Intentá nuevamente.");
+        alert(message);
     }
 }
 
@@ -327,7 +334,6 @@ async function handleBrandAction(event: MouseEvent): Promise<void> {
 }
 
 function sortBrands(column: keyof Brand): void {
-
     if (currentSortColumn !== column) {
         currentSortColumn = column;
         currentSortDirection = "asc";
@@ -339,33 +345,14 @@ function sortBrands(column: keyof Brand): void {
     }
 
     if (currentSortColumn && currentSortDirection) {
-        pagination.items.sort((a, b) => {
-            const valueA = a[currentSortColumn!];
-            const valueB = b[currentSortColumn!];
-            if (valueA === valueB) 
-                return 0;
-
-            if (valueA == null) 
-                return 1;
-
-            if (valueB == null) 
-                return -1;
-            
-            const comparison =
-                String(valueA).localeCompare(
-                    String(valueB),
-                    "es",
-                    {
-                        numeric: true,
-                        sensitivity: "base"
-                    }
-                );
-
-            return currentSortDirection === "asc" ? comparison : -comparison;
-        });
+        pagination.items = sortItems(
+            pagination.items,
+            currentSortColumn,
+            currentSortDirection
+        );
     }
 
-    renderBrandsTable(pagination.items);
+    renderBrandsPage();
 }
 
 function getSortIndicator(column: keyof Brand): string {

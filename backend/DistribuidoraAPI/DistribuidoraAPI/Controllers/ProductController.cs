@@ -1,3 +1,4 @@
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Product;
 using DistribuidoraAPI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,17 +17,24 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetAll([FromQuery] ProductFilterRequest filters)
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetAll()
     {
         try
         {
-            var products = await _productService.GetAll(filters);
+            var products = await _productService.GetAll();
             return Ok(products);
         }
         catch (ArgumentException ex)
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    [HttpGet("getByFilter")]
+    public async Task<ActionResult<PagedResultDto<ProductResponseDto>>> GetByFilter([FromQuery] ProductFilterDto filter)
+    {
+        var products = await _productService.GetByFilter(filter);
+        return Ok(products);
     }
 
     [HttpGet("stock-alerts")]
@@ -92,11 +100,25 @@ public class ProductController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, [FromBody] int userId)
+    public async Task<IActionResult> Delete(int id, [FromBody] AuditUserDto auditUserDto)
     {
         try
         {
-            await _productService.Delete(id, userId);
+            await _productService.Delete(id, auditUserDto.UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    [HttpPatch("{id:int}/activate")]
+    public async Task<IActionResult> Activate(int id, [FromBody] AuditUserDto auditUserDto)
+    {
+        try
+        {
+            await _productService.Activate(id, auditUserDto.UserId);
             return NoContent();
         }
         catch (KeyNotFoundException ex)

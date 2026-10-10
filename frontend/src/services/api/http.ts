@@ -21,7 +21,7 @@ async function request<T>(
         const response = await fetch(`${API_URL}${endpoint}`, options);
 
         if (!response.ok) {
-            throw new Error("Error al realizar la solicitud");
+            throw new Error(await getErrorMessage(response));
         }
 
         if (response.status === 204) {
@@ -111,4 +111,22 @@ export async function patch<T>(endpoint: string): Promise<T> {
             userId: getUserId()
         })
     );
+}
+
+async function getErrorMessage(response: Response): Promise<string> {
+    try {
+        const data = await response.json();
+
+        if (typeof data.message === "string") {
+            return data.message;
+        }
+
+        if (typeof data.title === "string") {
+            return data.title;
+        }
+    } catch {
+        // La respuesta no contiene JSON válido.
+    }
+
+    return `Error en la solicitud (${response.status}).`;
 }

@@ -6,6 +6,7 @@ import { renderPagination } from "../../../components/pagination/pagination";
 import { getCrudStateContainer, renderCrudStates, showCrudState } from "../../../components/crud-state/crudState";
 import { createPaginationState } from "../../../components/pagination/paginationState";
 import { withLoadingButton } from "../../../components/loading/withLoadingButton";
+import { sortItems } from "../../../utils/sort";
 
 const pagination = createPaginationState<Category>();
 
@@ -100,12 +101,14 @@ async function loadCategories(): Promise<void> {
         if (categories.items.length === 0) {
             pagination.items = [];
             pagination.totalPages = 0;
+            pagination.totalItems = 0;
 
             showCrudState(crudContainer, "no-results");
             return;
         }
         pagination.items = categories.items;
         pagination.totalPages = categories.totalPages;
+        pagination.totalItems = categories.totalItems;
 
         showCrudState(crudContainer, "results");
 
@@ -130,7 +133,7 @@ function renderCategoriesTable(categories: Category[]): void {
         <div class="crud-table-header">
             <h3>Categorías</h3>
             <span class="crud-count">
-                ${categories.length} categorías
+                ${pagination.totalItems} categorías
             </span>
         </div>
 
@@ -255,8 +258,12 @@ async function handleCategorySubmit(event: SubmitEvent): Promise<void> {
         await searchCategories();
 
     } catch (error) {
+        const message = error instanceof Error
+        ? "Error: " + error.message
+        : "No se pudo crear la categoría o actualizarla. Intentá nuevamente.";
+
         console.error("Error al crear la categoría:",error);
-        alert("No se pudo crear la categoría o actualizarla. Intentá nuevamente.");
+        alert(message);
     }
 }
 
@@ -328,7 +335,6 @@ async function handleCategoryAction(event: MouseEvent): Promise<void> {
 }
 
 function sortCategories(column: keyof Category): void {
-
     if (currentSortColumn !== column) {
         currentSortColumn = column;
         currentSortDirection = "asc";
@@ -340,33 +346,14 @@ function sortCategories(column: keyof Category): void {
     }
 
     if (currentSortColumn && currentSortDirection) {
-        pagination.items.sort((a, b) => {
-            const valueA = a[currentSortColumn!];
-            const valueB = b[currentSortColumn!];
-            if (valueA === valueB) 
-                return 0;
-
-            if (valueA == null) 
-                return 1;
-
-            if (valueB == null) 
-                return -1;
-            
-            const comparison =
-                String(valueA).localeCompare(
-                    String(valueB),
-                    "es",
-                    {
-                        numeric: true,
-                        sensitivity: "base"
-                    }
-                );
-
-            return currentSortDirection === "asc" ? comparison : -comparison;
-        });
+        pagination.items = sortItems(
+            pagination.items,
+            currentSortColumn,
+            currentSortDirection
+        );
     }
 
-    renderCategoriesTable(pagination.items);
+    renderCategoriesPage();
 }
 
 function getSortIndicator(column: keyof Category): string {
