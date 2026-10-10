@@ -4,5 +4,5 @@ namespace DistribuidoraAPI.Services;
 
 public interface IDashboardService
 {
-    Task<AdminDashboardResponseDto> GetAdminDashboard(DateTime? dateFrom, DateTime? dateTo);
+    Task<AdminDashboardResponseDto> GetAdminDashboard(int userId, DateTime? dateFrom, DateTime? dateTo);
 }
