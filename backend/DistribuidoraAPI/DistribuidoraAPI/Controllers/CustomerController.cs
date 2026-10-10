@@ -1,6 +1,7 @@
 using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.Services;
+using DistribuidoraAPI.Services.Implementations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -59,5 +60,19 @@ public class CustomerController : ControllerBase
     {
         await _customerService.Delete(id, auditUserDto.UserId);
         return NoContent();
+    }
+
+    [HttpPatch("{id:int}/activate")]
+    public async Task<IActionResult> Activate(int id, [FromBody] AuditUserDto auditUserDto)
+    {
+        try
+        {
+            await _customerService.Activate(id, auditUserDto.UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
     }
 }

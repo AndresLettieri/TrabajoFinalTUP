@@ -1,5 +1,5 @@
-import { get, post, put, del, getByFilter } from "../api/http";
-import type { PagedResult } from "../customers/customerService";
+import { get, post, put, del, getByFilter, patch } from "../api/http";
+import type { PagedResult } from "../../types/pagination";
 
 export interface Brand {
     id: number;
@@ -57,5 +57,12 @@ export async function delBrand(id: number): Promise<Brand> {
 
     return del<Brand>(
         `/brands/${id}`
+    );
+}
+
+export async function activateBrand(id: number): Promise<Brand> {
+
+    return patch<Brand>(
+        `/brands/${id}/activate`
     );
 }

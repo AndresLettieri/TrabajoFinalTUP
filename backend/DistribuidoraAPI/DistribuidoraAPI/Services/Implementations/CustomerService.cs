@@ -235,5 +235,21 @@ public class CustomerService : ICustomerService
         }
     }
 
+    public async Task Activate(int id, int userId)
+    {
+        var customer = await _unitOfWork.Customers.GetByIdAsync(id);
+
+        if (customer == null)
+            throw new KeyNotFoundException($"No se encontró el cliente con ID {id}");
+
+
+        customer.Active = true;
+        customer.ModifiedAt = DateTime.UtcNow;
+        customer.ModifiedBy = userId;
+
+        _unitOfWork.Customers.Update(customer);
+        await _unitOfWork.SaveChanges();
+    }
+
     private sealed record CustomerData(string Name, string Document, string? Phone, string? Email, string? Address, string? City, string? Observations);
 }

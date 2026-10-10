@@ -22,8 +22,6 @@
     <Folder Include="DTOs\Customer\" />
     <Folder Include="DTOs\Order\" />
     <Folder Include="DTOs\Purchase\" />
-    <Folder Include="DTOs\Vendor\" />
-    <Folder Include="DTOs\Product\" />
   </ItemGroup>
 
 </Project>

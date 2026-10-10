@@ -1,3 +1,4 @@
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Category;
 
 namespace DistribuidoraAPI.Services;
@@ -9,4 +10,6 @@ public interface ICategoryService
     Task<CategoryResponseDto> Create(CreateCategoryRequest request);
     Task<CategoryResponseDto> Update(int id, UpdateCategoryRequest request);
     Task Delete(int id, int userId);
+    Task<PagedResultDto<CategoryResponseDto>> GetByFilter(CategoryFilterDto filter);
+    Task Activate(int id, int userId);
 }

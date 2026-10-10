@@ -1,6 +1,5 @@
 using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Brand;
-using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
 
@@ -138,5 +137,21 @@ public class BrandService : IBrandService
         }
 
         return name;
+    }
+
+    public async Task Activate(int id, int userId)
+    {
+        var brand = await _unitOfWork.Brands.GetByIdAsync(id);
+
+        if (brand == null)
+            throw new KeyNotFoundException($"No se encontró la marca con ID {id}");
+
+
+        brand.Active = true;
+        brand.ModifiedAt = DateTime.UtcNow;
+        brand.ModifiedBy = userId;
+
+        _unitOfWork.Brands.Update(brand);
+        await _unitOfWork.SaveChanges();
     }
 }

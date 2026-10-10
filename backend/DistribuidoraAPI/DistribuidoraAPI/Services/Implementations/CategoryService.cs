@@ -1,4 +1,6 @@
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Category;
+using DistribuidoraAPI.DTOs.Customer;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
 
@@ -27,6 +29,20 @@ public class CategoryService : ICategoryService
             Name = c.Name
         }).ToList();
     }
+
+    public async Task<PagedResultDto<CategoryResponseDto>> GetByFilter(CategoryFilterDto filter)
+    {
+        var categories = await _unitOfWork.Categories.GetFilteredCategories(filter);
+
+        return new PagedResultDto<CategoryResponseDto>
+        {
+            Items = categories.Items.Select(Map).ToList(),
+            TotalItems = categories.TotalItems,
+            Page = categories.Page,
+            PageSize = categories.PageSize,
+            TotalPages = categories.TotalPages
+        };
+    }
     public async Task<CategoryResponseDto?> GetById(int id)
     {
         
@@ -38,7 +54,8 @@ public class CategoryService : ICategoryService
         return new CategoryResponseDto
         {
             Id = category.Id,
-            Name = category.Name
+            Name = category.Name,
+            Active = category.Active
         };
     }
     public async Task<CategoryResponseDto> Create(CreateCategoryRequest request)
@@ -119,4 +136,30 @@ public class CategoryService : ICategoryService
         _unitOfWork.Categories.Update(category);
         await _unitOfWork.SaveChanges();
     }
-}
+
+    private static CategoryResponseDto Map(Category category)
+    {
+        return new CategoryResponseDto
+        {
+            Id = category.Id,
+            Name = category.Name,
+            Active = category.Active
+        };
+    }
+
+    public async Task Activate(int id, int userId)
+    {
+        var category = await _unitOfWork.Categories.GetByIdAsync(id);
+
+        if (category == null)
+            throw new KeyNotFoundException($"No se encontró la categoría con ID {id}");
+
+
+        category.Active = true;
+        category.ModifiedAt = DateTime.UtcNow;
+        category.ModifiedBy = userId;
+
+        _unitOfWork.Categories.Update(category);
+        await _unitOfWork.SaveChanges();
+    }
+}   

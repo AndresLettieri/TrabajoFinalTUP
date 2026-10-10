@@ -1,5 +1,8 @@
-﻿using DistribuidoraAPI.DTOs.Category;
+﻿using DistribuidoraAPI.DTOs;
+using DistribuidoraAPI.DTOs.Brand;
+using DistribuidoraAPI.DTOs.Category;
 using DistribuidoraAPI.Services;
+using DistribuidoraAPI.Services.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DistribuidoraAPI.Controllers;
@@ -19,6 +22,13 @@ public class CategoryController : ControllerBase
     public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetAll()
     {
         var categories = await _categoryService.GetAll();
+        return Ok(categories);
+    }
+
+    [HttpGet("getByFilter")]
+    public async Task<ActionResult<PagedResultDto<CategoryResponseDto>>> GetByFilter([FromQuery] CategoryFilterDto filter)
+    {
+        var categories = await _categoryService.GetByFilter(filter);
         return Ok(categories);
     }
 
@@ -76,12 +86,26 @@ public class CategoryController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, [FromBody] int userId)
+    public async Task<IActionResult> Delete(int id, [FromBody] AuditUserDto auditUserDto)
     {
         
         try
         {
-            await _categoryService.Delete(id, userId);
+            await _categoryService.Delete(id, auditUserDto.UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    [HttpPatch("{id:int}/activate")]
+    public async Task<IActionResult> Activate(int id, [FromBody] AuditUserDto auditUserDto)
+    {
+        try
+        {
+            await _categoryService.Activate(id, auditUserDto.UserId);
             return NoContent();
         }
         catch (KeyNotFoundException ex)

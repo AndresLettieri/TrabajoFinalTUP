@@ -1,3 +1,4 @@
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Vendor;
 
 namespace DistribuidoraAPI.Services;
@@ -9,4 +10,6 @@ public interface IVendorService
     Task<VendorResponseDto> Create(CreateVendorRequest request);
     Task<VendorResponseDto> Update(int id, UpdateVendorRequest request);
     Task Delete(int id, int userId);
+    Task<PagedResultDto<VendorResponseDto>> GetByFilter(VendorFilterDto filter);
+    Task Activate(int id, int userId);
 }
