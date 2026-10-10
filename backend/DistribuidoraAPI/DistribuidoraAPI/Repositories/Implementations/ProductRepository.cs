@@ -1,4 +1,6 @@
 using DistribuidoraAPI.Data;
+using DistribuidoraAPI.DTOs;
+using DistribuidoraAPI.DTOs.Product;
 using DistribuidoraAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -66,6 +68,8 @@ public class ProductRepository : RepositoryBase<Product>, IProductRepository
     public async Task<IEnumerable<Product>> GetStockAlerts()
     {
         return await _dbSet
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
             .Where(p => p.Active && p.Stock <= p.MinimumStock)
             .OrderBy(p => p.Stock)
             .ThenBy(p => p.Description)
@@ -75,6 +79,8 @@ public class ProductRepository : RepositoryBase<Product>, IProductRepository
     public async Task<IEnumerable<Product>> GetActiveProducts()
     {
         return await _dbSet
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
             .Where(p => p.Active)
             .OrderBy(p => p.Description)
             .ThenBy(p => p.Code)
@@ -84,7 +90,58 @@ public class ProductRepository : RepositoryBase<Product>, IProductRepository
     public async Task<Product?> GetActiveProductById(int id)
     {
         return await _dbSet
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
             .Where(p => p.Id == id && p.Active)
             .FirstOrDefaultAsync();
+    }
+
+    public async Task<PagedResultDto<Product>> GetFilteredProducts(ProductFilterDto filter)
+    {
+        var query = _dbSet.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Code))
+            query = query.Where(c =>
+                c.Code.ToLower().Contains(filter.Code.ToLower()));
+
+        if (!string.IsNullOrWhiteSpace(filter.Barcode))
+            query = query.Where(c =>
+                c.Barcode != null &&
+                c.Barcode.ToLower().Contains(filter.Barcode.ToLower()));
+
+        if (!string.IsNullOrWhiteSpace(filter.Description))
+            query = query.Where(c =>
+                c.Description.ToLower().Contains(filter.Description.ToLower()));
+
+        if (filter.Active.HasValue)
+            query = query.Where(c =>
+                c.Active == filter.Active.Value);
+
+        if (filter.CategoryId.HasValue)
+            query = query.Where(c =>
+                c.CategoryId == filter.CategoryId.Value);
+
+        if (filter.BrandId.HasValue)
+            query = query.Where(c =>
+                c.BrandId == filter.BrandId.Value);
+
+        var totalItems = await query.CountAsync();
+
+        var products = await query
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .OrderBy(c => c.Description)
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToListAsync();
+
+        return new PagedResultDto<Product>
+        {
+            Items = products,
+            TotalItems = totalItems,
+            Page = filter.Page,
+            PageSize = filter.PageSize,
+            TotalPages = (int)Math.Ceiling((double)totalItems / filter.PageSize)
+        };
     }
 }

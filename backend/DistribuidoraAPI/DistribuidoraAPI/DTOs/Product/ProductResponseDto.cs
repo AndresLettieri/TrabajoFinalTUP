@@ -7,12 +7,13 @@ public class ProductResponseDto
     public string? Barcode { get; set; }
     public required string Description { get; set; }
     public int CategoryId { get; set; }
+    public required string CategoryName { get; set; }
     public int BrandId { get; set; }
+    public required string BrandName { get; set; }
     public decimal PurchasePrice { get; set; }
     public decimal SalePrice { get; set; }
     public int Stock { get; set; }
     public int MinimumStock { get; set; }
-
     public bool Active { get; set; }
     public DateTime CreatedAt { get; set; }
     public int CreatedBy { get; set; }

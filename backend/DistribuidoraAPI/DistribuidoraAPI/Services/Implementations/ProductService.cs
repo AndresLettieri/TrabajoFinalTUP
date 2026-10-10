@@ -1,5 +1,5 @@
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Product;
-using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
 
 namespace DistribuidoraAPI.Services.Implementations;
@@ -20,28 +20,15 @@ public class ProductService : IProductService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<ProductResponseDto>> GetAll(ProductFilterRequest? filters = null)
+    public async Task<IEnumerable<ProductResponseDto>> GetAll()
     {
-        var normalizedFilters = NormalizeFilters(filters);
-        _logger.LogInformation(
-            "Buscando productos con filtros: Code={Code}, Barcode={Barcode}, Description={Description}, CategoryId={CategoryId}, BrandId={BrandId}, Active={Active}",
-            normalizedFilters.Code,
-            normalizedFilters.Barcode,
-            normalizedFilters.Description,
-            normalizedFilters.CategoryId,
-            normalizedFilters.BrandId,
-            normalizedFilters.Active);
+        _logger.LogInformation("Obteniendo todos los productos activos");
 
-        var products = await _unitOfWork.Products.Search(
-            normalizedFilters.Code,
-            normalizedFilters.Barcode,
-            normalizedFilters.Description,
-            normalizedFilters.CategoryId,
-            normalizedFilters.BrandId,
-            normalizedFilters.Active);
+        var products = await _unitOfWork.Products.GetActiveProducts();
 
         return products.Select(Map).ToList();
     }
+
 
     public async Task<IEnumerable<ProductResponseDto>> GetStockAlerts()
     {
@@ -58,6 +45,21 @@ public class ProductService : IProductService
 
         return product is null ? null : Map(product);
     }
+
+    public async Task<PagedResultDto<ProductResponseDto>> GetByFilter(ProductFilterDto filter)
+    {
+        var products = await _unitOfWork.Products.GetFilteredProducts(filter);
+
+        return new PagedResultDto<ProductResponseDto>
+        {
+            Items = products.Items.Select(Map).ToList(),
+            TotalItems = products.TotalItems,
+            Page = products.Page,
+            PageSize = products.PageSize,
+            TotalPages = products.TotalPages
+        };
+    }
+
 
     public async Task<ProductResponseDto> Create(CreateProductRequest request)
     {
@@ -130,6 +132,22 @@ public class ProductService : IProductService
         await _unitOfWork.SaveChanges();
     }
 
+    public async Task Activate(int id, int userId)
+    {
+        var product = await _unitOfWork.Products.GetByIdAsync(id);
+
+        if (product == null)
+            throw new KeyNotFoundException($"No se encontró el producto con ID {id}");
+
+
+        product.Active = true;
+        product.ModifiedAt = DateTime.UtcNow;
+        product.ModifiedBy = userId;
+
+        _unitOfWork.Products.Update(product);
+        await _unitOfWork.SaveChanges();
+    }
+
     private async Task ValidateReferences(int categoryId, int brandId)
     {
         if (categoryId <= 0)
@@ -174,7 +192,9 @@ public class ProductService : IProductService
             Barcode = product.Barcode,
             Description = product.Description,
             CategoryId = product.CategoryId,
+            CategoryName =product.Category.Name,
             BrandId = product.BrandId,
+            BrandName = product.Brand.Name,
             PurchasePrice = product.PurchasePrice,
             SalePrice = product.SalePrice,
             Stock = product.Stock,
@@ -185,29 +205,6 @@ public class ProductService : IProductService
             ModifiedAt = product.ModifiedAt,
             ModifiedBy = product.ModifiedBy
         };
-    }
-
-    private static ProductFilterData NormalizeFilters(ProductFilterRequest? filters)
-    {
-        var code = NormalizeOptional(filters?.Code);
-        var barcode = NormalizeOptional(filters?.Barcode);
-        var description = NormalizeOptional(filters?.Description);
-        var categoryId = filters?.CategoryId;
-        var brandId = filters?.BrandId;
-
-        if (categoryId.HasValue && categoryId.Value <= 0)
-            throw new ArgumentException("El filtro de categoría debe ser mayor que cero");
-
-        if (brandId.HasValue && brandId.Value <= 0)
-            throw new ArgumentException("El filtro de marca debe ser mayor que cero");
-
-        return new ProductFilterData(
-            code,
-            barcode,
-            description,
-            categoryId,
-            brandId,
-            filters?.Active ?? true);
     }
 
     private static ProductData NormalizeAndValidate(CreateProductRequest request)
@@ -312,14 +309,8 @@ public class ProductService : IProductService
         if (decimal.Round(value, 2) != value)
             throw new ArgumentException($"{fieldName} no puede tener más de 2 decimales");
     }
-
     private sealed record ProductData(string Code, string? Barcode, string Description, int CategoryId, int BrandId, decimal PurchasePrice, decimal SalePrice, int MinimumStock);
 
-    private sealed record ProductFilterData(
-        string? Code,
-        string? Barcode,
-        string? Description,
-        int? CategoryId,
-        int? BrandId,
-        bool Active);
+
 }
+
