@@ -1,6 +1,6 @@
 namespace DistribuidoraAPI.DTOs.Purchase;
 
-public class PurchaseFilterRequest
+public class PurchaseFilterRequest : PaginationRequestDto
 {
     public DateTime? DateFrom { get; set; }
     public DateTime? DateTo { get; set; }
