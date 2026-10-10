@@ -3,6 +3,7 @@ using DistribuidoraAPI.DTOs.User;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
 using DistribuidoraAPI.Services.Security;
+using DistribuidoraAPI.DTOs;
 
 namespace DistribuidoraAPI.Services.Implementations
 {
@@ -26,7 +27,8 @@ namespace DistribuidoraAPI.Services.Implementations
                 Id = u.Id,
                 Name = u.Name,
                 Email = u.Email,
-                Role = u.Role
+                Role = u.Role,
+                Active = u.Active
             }).ToList();
         }
 
@@ -40,7 +42,28 @@ namespace DistribuidoraAPI.Services.Implementations
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                Active = user.Active
+            };
+        }
+
+        public async Task<PagedResultDto<UserResponseDto>> GetByFilter(UserFilterDto filter)
+        {
+            var users = await _unitOfWork.Users.GetFilteredUsers(filter);
+            return new PagedResultDto<UserResponseDto>
+            {
+                Items = users.Items.Select(u => new UserResponseDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Email = u.Email,
+                    Role = u.Role,
+                    Active = u.Active
+                }).ToList(),
+                TotalItems = users.TotalItems,
+                Page = users.Page,
+                PageSize = users.PageSize,
+                TotalPages = users.TotalPages
             };
         }
 
@@ -71,7 +94,8 @@ namespace DistribuidoraAPI.Services.Implementations
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                Active = user.Active
             };
         }
 
@@ -104,7 +128,8 @@ namespace DistribuidoraAPI.Services.Implementations
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                Active = user.Active
             };
         }
 
@@ -122,6 +147,18 @@ namespace DistribuidoraAPI.Services.Implementations
             await _unitOfWork.SaveChanges();
         }
 
+        public async Task Activate(int id, int userId)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(id);
+            if (user is null)
+                throw new KeyNotFoundException($"No se encontró el usuario con ID {id}");
+            user.Active = true;
+            user.ModifiedAt = DateTime.UtcNow;
+            user.ModifiedBy = userId;
+            _unitOfWork.Users.Update(user);
+            await _unitOfWork.SaveChanges();
+        }
+
         public async Task<UserResponseDto> GetByEmailAndPassword(string email, string password)
         {
             var user = await _unitOfWork.Users.GetByEmail(email);
@@ -132,7 +169,8 @@ namespace DistribuidoraAPI.Services.Implementations
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                Active = user.Active
             };
         }
 

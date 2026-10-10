@@ -1,4 +1,4 @@
-import type { User } from "../../types/user";
+import type { User } from "../../services/users/userService";
 
 const SESSION_KEY = "currentUser";
 
