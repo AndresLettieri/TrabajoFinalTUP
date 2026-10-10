@@ -1,6 +1,6 @@
 import layoutHtml from "./layout.html?raw";
 
-import type { User } from "../../types/user";
+import type { User } from "../../services/users/userService";
 import { getCurrentUser, logout } from "../../services/auth/authSession";
 import { navigate } from "../../router/router";
 

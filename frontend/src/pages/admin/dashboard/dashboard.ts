@@ -1,9 +1,9 @@
-
 import dashboardHtml from "./dashboard.html?raw";
 import { renderLayout } from "../../shared/layout";
 import { getAdminDashboard, type Dashboard } from "../../../services/dashboards/dashboardService";
 import type { Product } from "../../../services/products/productsService";
 import { getCurrentUser } from "../../../services/auth/authSession";
+import { formatCurrency } from "../../../utils/formatsUtils";
 
 export async function renderAdminDashboard(): Promise<void> {
     renderLayout(dashboardHtml);
@@ -35,13 +35,6 @@ export async function renderAdminDashboard(): Promise<void> {
     }
 }
 
-function formatCurrency(value: number): string {
-    return new Intl.NumberFormat("es-AR", {
-        style: "currency",
-        currency: "ARS",
-        maximumFractionDigits: 2,
-    }).format(value);
-}
 
 function renderStockAlerts(container: HTMLElement,products: Product[]): void {
     if (products.length === 0) {

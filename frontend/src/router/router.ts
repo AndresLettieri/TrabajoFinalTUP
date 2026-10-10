@@ -7,6 +7,8 @@ import { renderBrands } from "../pages/admin/brands/brands";
 import { renderCustomers } from "../pages/customers/customers";
 import { renderVendors } from "../pages/admin/vendors/vendors";
 import { renderPurchases } from "../pages/admin/purchases/purchases";
+import { renderNewPurchase } from "../pages/admin/purchases/newPurchase";
+import { renderPurchaseDetail } from "../pages/admin/purchases/purchaseDetail";
 import { renderSales } from "../pages/admin/sales/sales";
 import { renderUsers } from "../pages/admin/users/users";
 import { renderReports } from "../pages/admin/reports/reports";
@@ -67,6 +69,15 @@ const routes: Record<string, Route> = {
     roles: ["Admin"],
     },
 
+    "/admin/purchases/create": {
+    render: renderNewPurchase,
+    roles: ["Admin"],
+    },
+
+    "/admin/purchases/{id}": {
+    render: renderPurchaseDetail,
+    roles: ["Admin"],
+    },
     "/admin/sales": {
     render: renderSales,
     roles: ["Admin"],
@@ -100,7 +111,14 @@ const routes: Record<string, Route> = {
 
 export function router(): void {
     const path = window.location.pathname;
-    const route = routes[path];
+
+    const purchaseDetailMatch = path.match(
+        /^\/admin\/purchases\/(\d+)$/
+    );
+
+    const route =
+        routes[path] ??
+        (purchaseDetailMatch ? routes["/admin/purchases/{id}"] : undefined);
 
     // Ruta inexistente
     if (!route) {
