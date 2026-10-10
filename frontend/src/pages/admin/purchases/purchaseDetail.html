@@ -1,0 +1,75 @@
+
+<section class="crud-page">
+    <div class="crud-header purchase-detail-header">
+        <div class="purchase-detail-heading">
+            <h2>Detalle de compra</h2>
+            <span id="purchase-detail-status-badge" class="purchase-status-badge">Cargando...</span>
+            <p id="purchase-detail-subtitle">Información de la compra registrada</p>
+        </div>
+
+        <button type="button" id="back-to-purchases" class="btn btn-secondary">Volver al listado</button>
+    </div>
+
+    <section class="form-section">
+        <h3>Datos de la compra</h3>
+
+        <div class="form-grid-three">
+            <div class="form-group-double">
+                <label>Número de comprobante</label>
+                <p id="purchase-detail-number" class="detail-value">-</p>
+            </div>
+
+            <div class="form-group-double">
+                <label>Fecha</label>
+                <p id="purchase-detail-date" class="detail-value">-</p>
+            </div>
+
+            <div class="form-group-double">
+                <label>Proveedor</label>
+                <p id="purchase-detail-vendor" class="detail-value">-</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Productos -->
+    <section class="form-section">
+        <h3>Productos de la compra</h3>
+
+        <div
+            class="crud-table-container"
+            id="purchase-detail-table-container"
+        >
+            <table class="crud-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio de compra</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+
+                <tbody id="purchase-detail-items">
+                    <!-- Los productos se cargan desde TypeScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="purchase-total">
+            <span>Total de la compra:</span>
+            <strong id="purchase-detail-total">$ 0,00</strong>
+        </div>
+    </section>
+
+    <!-- Observaciones -->
+    <section class="form-section">
+        <h3>Observaciones</h3>
+
+        <p id="purchase-detail-observations" class="detail-value">
+            Sin observaciones
+        </p>
+    </section>
+
+
+</section>

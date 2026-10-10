@@ -35,16 +35,20 @@ public class VendorRepository : RepositoryBase<Vendor>, IVendorRepository
             query = query.Where(v =>
                 v.Name.ToLower().Contains(filter.Name.ToLower()));
 
+        
         if (!string.IsNullOrWhiteSpace(filter.Phone))
             query = query.Where(v =>
+                v.Phone != null &&
                 v.Phone.ToLower().Contains(filter.Phone.ToLower()));
 
         if (!string.IsNullOrWhiteSpace(filter.Email))
             query = query.Where(v =>
+                v.Email != null &&
                 v.Email.ToLower().Contains(filter.Email.ToLower()));
 
         if (!string.IsNullOrWhiteSpace(filter.City))
             query = query.Where(v =>
+                v.City != null &&
                 v.City.ToLower().Contains(filter.City.ToLower()));
 
         if (filter.Active.HasValue)

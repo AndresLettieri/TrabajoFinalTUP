@@ -7,7 +7,7 @@ export interface PaginationState<T> {
 }
 
 export function createPaginationState<T>(
-    pageSize = 5
+    pageSize = 10
 ): PaginationState<T> {
     return {
         currentPage: 1,

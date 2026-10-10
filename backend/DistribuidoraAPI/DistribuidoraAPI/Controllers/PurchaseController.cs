@@ -17,17 +17,18 @@ public class PurchaseController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<PurchaseResponseDto>>> GetAll([FromQuery] PurchaseFilterRequest filters)
+    public async Task<ActionResult<IEnumerable<PurchaseResponseDto>>> GetAll()
     {
-        try
-        {
-            var purchases = await _purchaseService.GetAll(filters);
-            return Ok(purchases);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var purchases = await _purchaseService.GetAll();
+        return Ok(purchases);
+    }
+
+
+    [HttpGet("getByFilter")]
+    public async Task<ActionResult<PagedResultDto<PurchaseResponseDto>>> GetByFilter([FromQuery] PurchaseFilterRequest filter)
+    {
+        var purchases = await _purchaseService.GetByFilter(filter);
+        return Ok(purchases);
     }
 
     [HttpGet("{id:int}")]
