@@ -1,0 +1,103 @@
+<div id="product-selector-modal" class="modal-overlay" hidden>
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Agregar productos</h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                id="product-selector-close"
+                aria-label="Cerrar"
+            >
+                ×
+            </button>
+        </div>
+
+        <div class="form-section">
+            <h3>Buscar productos</h3>
+
+            <div class="form-grid-double">
+                <div class="form-group-double">
+                    <label for="product-selector-code">Código</label>
+                    <input
+                        type="search"
+                        id="product-selector-code"
+                        placeholder="Buscar por código..."
+                    />
+                </div>
+
+                <div class="form-group-double">
+                    <label for="product-selector-description">
+                        Descripción
+                    </label>
+                    <input
+                        type="search"
+                        id="product-selector-description"
+                        placeholder="Buscar por descripción..."
+                    />
+                </div>
+
+                <div class="form-group-double">
+                    <label for="product-selector-brand">Marca</label>
+                    <select id="product-selector-brand">
+                        <option value="">Todas las marcas</option>
+                    </select>
+                </div>
+
+                <div class="form-group-double">
+                    <label for="product-selector-category">Categoría</label>
+                    <select id="product-selector-category">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button
+                    type="button"
+                    id="product-selector-search"
+                    class="btn btn-primary"
+                >
+                    Buscar
+                </button>
+            </div>
+
+            <p
+                id="product-selector-error"
+                class="error-message"
+                role="alert"
+            ></p>
+        </div>
+
+        <section
+            class="crud-table-container"
+            id="product-selector-results-container"
+        >
+            <table class="crud-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Marca</th>
+                        <th>Categoría</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="product-selector-results"></tbody>
+            </table>
+        </section>
+
+        <div id="product-selector-pagination" class="crud-pagination"></div>
+
+        <div class="modal-actions">
+            <button
+                type="button"
+                class="btn btn-secondary"
+                id="product-selector-cancel"
+            >
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,3 +1,41 @@
-<section class="page">
-    <h2>Compras</h2>
+<section class="crud-page">
+
+    <div class="crud-header">
+        <div>
+            <h2>Compras</h2>
+        </div>
+
+        <button id="new-purchase-button" class="btn btn-primary" type="button">
+            <span>＋ Nueva compra</span>
+        </button>
+    </div>
+
+    <section class="crud-filters"> 
+        <div class="crud-filter">
+            <label for="purchase-search">Numero</label>
+            <input type="search" id="purchase-search" placeholder="Buscar por número..."/>
+        </div>
+        <div class="crud-filter">
+            <label for="purchase-date-from">Fecha desde</label>
+            <input type="date" id="purchase-date-from" />
+        </div>
+        <div class="crud-filter">
+            <label for="purchase-date-to">Fecha hasta</label>
+            <input type="date" id="purchase-date-to" />
+        </div>
+        <div class="crud-filter">
+            <label for="purchase-vendor-search">Proveedor</label>
+            <select id="purchase-vendor-search">
+                <option value="all">Todos</option>
+            </select>
+        </div>
+
+        <div class="crud-filter crud-filter-button">
+            <span class="crud-filter-spacer"></span>
+            <button id="search-purchases" class="btn btn-primary" type="button">Buscar</button>
+        </div>
+    </section>
+
+    <section class="crud-table-container" id="purchases-crud">   </section>
+
 </section>

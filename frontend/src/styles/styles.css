@@ -375,7 +375,7 @@ button {
 .modal {
     position: relative;
     width: 100%;
-    max-width: 700px;
+    max-width: 900px;
     max-height: calc(100vh - 40px);
     overflow-y: auto;
     box-sizing: border-box;
@@ -468,6 +468,9 @@ button {
   resize: vertical;
 }
 
+body.modal-open {
+    overflow: hidden;
+}
 
 
 @media (max-width: 768px) {
@@ -488,8 +491,30 @@ button {
     .form-group-full {
         grid-column: auto;
     }
+
+    .modal-overlay {
+        padding: 10px;
+        align-items: center;
+    }
+
     .modal {
-        max-width: 100%;
+        width: 100%;
+        max-width: none;
+        max-height: calc(100dvh - 20px);
+        padding: 16px;
+    }
+
+    .modal-header {
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .modal-header h2 {
+        font-size: 19px;
+    }
+
+    #product-selector-results-container .crud-table {
+        min-width: 600px;
     }
 
     .modal-actions {
@@ -536,7 +561,8 @@ button {
 }
 
 .form-group-double input,
-.form-group-double select {
+.form-group-double select,
+.form-group-double textarea {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -587,6 +613,11 @@ button {
     }
 }
 
+.form-grid-three {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
 
 
 /* =========================
@@ -891,10 +922,12 @@ button {
 
 .crud-table-container {
   width: 100%;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   background-color: var(--color-blanco);
   border: 1px solid var(--color-borde);
   border-radius: 8px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .crud-table-header {
@@ -964,6 +997,16 @@ button {
 
 .crud-table th[data-sort].is-sorted {
   font-weight: 700;
+}
+
+#product-selector-results-container .crud-table {
+    min-width: 600px;
+}
+
+#product-selector-results-container .crud-table th,
+#product-selector-results-container .crud-table td {
+    padding: 12px;
+    vertical-align: middle;
 }
 
 /* Acciones por fila */
@@ -1261,6 +1304,14 @@ button {
   font-size: 13px;
 }
 
+.form-error {
+  margin-top: 12px;
+  color: #dc2626;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
 .customer-modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -1291,3 +1342,66 @@ button {
     width: 100%;
   }
 }
+
+/* =========================
+   COMPRA
+   ========================= */
+/* Separación entre la grilla y el total */
+.purchase-total {
+    margin-top: 20px;
+    color: green;
+}
+
+.detail-value {
+    margin: 8px 0 0;
+    padding: 10px 12px;
+    min-height: 20px;
+    background-color: var(--color-fondo, #f9fafb);
+    border: 1px solid var(--color-borde);
+    border-radius: 6px;
+    overflow-wrap: anywhere;
+}
+
+.purchase-detail-heading {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.purchase-detail-heading h2 {
+    margin: 0;
+}
+
+.purchase-detail-heading p {
+    flex-basis: 100%;
+    margin: 4px 0 0;
+}
+
+.purchase-status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background-color: #e0f2fe;
+    color: #075985;
+}
+
+.purchase-status-badge.cancelled {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.purchase-detail-header {
+    align-items: flex-start;
+}
+
+#purchase-detail-table-container {
+    overflow-x: auto;
+}
+
+#purchase-detail-table-container .crud-table {
+    min-width: 600px;
+}
+

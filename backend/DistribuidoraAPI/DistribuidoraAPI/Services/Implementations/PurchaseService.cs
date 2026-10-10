@@ -1,8 +1,11 @@
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Purchase;
 using DistribuidoraAPI.DTOs.Reports;
+using DistribuidoraAPI.DTOs.User;
 using DistribuidoraAPI.Enums;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
+using static System.Net.WebRequestMethods;
 
 namespace DistribuidoraAPI.Services.Implementations;
 
@@ -20,16 +23,24 @@ public class PurchaseService : IPurchaseService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<PurchaseResponseDto>> GetAll(PurchaseFilterRequest? filters = null)
+    public async Task<IEnumerable<PurchaseResponseDto>> GetAll()
+    {
+        var purchases= await _unitOfWork.Purchases.GetActivePurchases();
+        return purchases.Select(Map).ToList();
+    }
+
+    public async Task<PagedResultDto<PurchaseResponseDto>> GetByFilter(PurchaseFilterRequest filters)
     {
         var normalizedFilters = NormalizeFilters(filters);
-        var purchases = await _unitOfWork.Purchases.Search(
-            normalizedFilters.DateFrom,
-            normalizedFilters.DateToInclusive,
-            normalizedFilters.VendorId,
-            normalizedFilters.Number);
-
-        return purchases.Select(Map).ToList();
+        var purchases = await _unitOfWork.Purchases.GetFilteredPurchases(normalizedFilters);
+        return new PagedResultDto<PurchaseResponseDto>
+        {
+            Items = purchases.Items.Select(Map).ToList(),
+            TotalItems = purchases.TotalItems,
+            Page = purchases.Page,
+            PageSize = purchases.PageSize,
+            TotalPages = purchases.TotalPages
+        };
     }
 
     public async Task<PurchaseReportResponseDto> GetPurchaseReport(DateTime? dateFrom, DateTime? dateTo, int? vendorId = null)
@@ -43,12 +54,12 @@ public class PurchaseService : IPurchaseService
         if (vendorId.HasValue && vendorId.Value <= 0)
             throw new ArgumentException("El proveedor debe ser mayor que cero");
 
-        var purchases = (await GetAll(new PurchaseFilterRequest
+        var purchases = (await GetByFilter(new PurchaseFilterRequest
         {
             DateFrom = dateFrom.Value.Date,
             DateTo = dateTo.Value.Date,
             VendorId = vendorId
-        })).ToList();
+        })).Items.ToList();
 
         return new PurchaseReportResponseDto
         {
@@ -140,6 +151,9 @@ public class PurchaseService : IPurchaseService
             {
                 var product = productsById[detail.ProductId];
                 product.Stock += detail.Quantity;
+                product.PurchasePrice = detail.PurchasePrice;
+                product.ModifiedAt = DateTime.UtcNow;
+                product.ModifiedBy = request.UserId;
 
                 _unitOfWork.GetRepository<StockMovement>().Add(new StockMovement
                 {
@@ -246,7 +260,7 @@ public class PurchaseService : IPurchaseService
         };
     }
 
-    private static PurchaseFilterData NormalizeFilters(PurchaseFilterRequest? filters)
+    private static PurchaseFilterRequest NormalizeFilters(PurchaseFilterRequest? filters)
     {
         var dateFrom = filters?.DateFrom;
         var dateTo = filters?.DateTo;
@@ -270,7 +284,15 @@ public class PurchaseService : IPurchaseService
                 : dateTo.Value.Date.AddDays(1).AddTicks(-1);
         }
 
-        return new PurchaseFilterData(dateFrom, dateToInclusive, vendorId, number);
+        return new PurchaseFilterRequest
+        {
+            DateFrom = dateFrom,
+            DateTo = dateToInclusive,
+            VendorId = vendorId,
+            Number = number,
+            PageSize = filters.PageSize,
+            Page = filters.Page
+        };
     }
 
     private static PurchaseData NormalizeAndValidate(CreatePurchaseRequest request)
@@ -331,8 +353,6 @@ public class PurchaseService : IPurchaseService
         if (decimal.Round(amount, 2) != amount)
             throw new ArgumentException($"{fieldName} no puede tener más de 2 decimales");
     }
-
-    private sealed record PurchaseFilterData(DateTime? DateFrom, DateTime? DateToInclusive, int? VendorId, int? Number);
     private sealed record PurchaseData(int VendorId, int Number, DateTime Date, string? Observations, List<PurchaseDetailData> Details);
     private sealed record PurchaseDetailData(int ProductId, int Quantity, decimal PurchasePrice);
 }
