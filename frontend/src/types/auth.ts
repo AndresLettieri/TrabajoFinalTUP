@@ -1,4 +1,4 @@
-import type { User } from "./user";
+import type { User } from "../services/users/userService";
 
 export interface LoginRequest {
   email: string;

@@ -333,6 +333,7 @@ button {
     cursor: pointer;
 }
 
+
 #user-name {
     font-weight: bold;
 }
@@ -398,6 +399,13 @@ button {
     color: var(--color-texto-secundario);
 }
 
+.modal p.form-error {
+    margin-top: 12px;
+    color: #dc2626;
+    font-size: 18px;
+    font-weight: bold;
+}
+
 .modal-actions {
     display: flex;
     justify-content: center;
@@ -459,6 +467,8 @@ button {
 
   resize: vertical;
 }
+
+
 
 @media (max-width: 768px) {
 

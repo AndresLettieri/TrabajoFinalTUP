@@ -1,7 +1,7 @@
-﻿using DistribuidoraAPI.DTOs.User;
+﻿using DistribuidoraAPI.DTOs;
+using DistribuidoraAPI.DTOs.User;
 using DistribuidoraAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using DistribuidoraAPI.DTOs;
 
 namespace DistribuidoraAPI.Controllers;
 
@@ -32,6 +32,13 @@ public class UserController : ControllerBase
             return NotFound();
 
         return Ok(user);
+    }
+
+    [HttpGet("getByFilter")]
+    public async Task<ActionResult<PagedResultDto<UserResponseDto>>> GetByFilter([FromQuery] UserFilterDto filter)
+    {
+        var vendors = await _userService.GetByFilter(filter);
+        return Ok(vendors);
     }
 
     [HttpPost]
@@ -84,6 +91,20 @@ public class UserController : ControllerBase
         try
         {
             await _userService.Delete(id, auditUserDto.UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    [HttpPatch("{id:int}/activate")]
+    public async Task<IActionResult> Activate(int id, [FromBody] AuditUserDto auditUserDto)
+    {
+        try
+        {
+            await _userService.Activate(id, auditUserDto.UserId);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
