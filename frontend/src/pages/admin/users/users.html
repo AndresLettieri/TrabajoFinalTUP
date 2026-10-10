@@ -1,3 +1,124 @@
-<section class="page">
-    <h2>Usuarios</h2>
+<section class="crud-page">
+    <div class="crud-header">
+        <div>
+            <h2>Usuarios</h2>
+        </div>
+        <button id="new-user-button" class="btn btn-primary" type="button">
+            <span>＋ Nuevo usuario</span>
+        </button>
+    </div>
+
+    <section class="crud-filters">
+        <div class="crud-filter">
+            <label for="user-search">Nombre</label>
+            <input type="search" id="user-search" placeholder="Buscar por nombre..."/>
+        </div>
+        <div class="crud-filter">
+            <label for="user-email-filter">Email</label>
+            <input type="search" id="user-email-filter" placeholder="Buscar por email..."/>
+        </div>
+        <div class="crud-filter">
+            <label for="user-role-filter">Rol</label>
+            <select id="user-role-filter">
+                <option value="">Todos</option>
+                <option value="Admin">Admin</option>
+                <option value="Seller">Vendedor</option>
+            </select>
+        </div>
+
+        <div class="crud-filter">
+            <label for="user-status-filter">Estado</label>
+            <select id="user-status-filter">
+                <option value="all">Todos</option>
+                <option value="active">Activos</option>
+                <option value="inactive">Inactivos</option>
+            </select>
+        </div>
+        <div class="crud-filter crud-filter-button">
+            <span class="crud-filter-spacer"></span>
+            <button id="search-users" class="btn btn-primary" type="button">
+                Buscar
+            </button>
+        </div>
+    </section>
+
+    <section class="crud-table-container" id="users-crud"></section>
+
+    <!-- Modal de alta y edición -->
+    <div id="user-modal" class="modal-overlay" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="user-modal-title">Nuevo usuario</h2>
+                <button type="button" class="modal-close" id="user-modal-close" aria-label="Cerrar">×</button>
+            </div>
+            <form id="user-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="user-name-input">Nombre</label>
+                        <input type="text" id="user-name-input" autocomplete="name" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email-input">Email</label>
+                        <input type="email" id="user-email-input" autocomplete="email" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-role-input">Rol</label>
+                        <select id="user-role-input" required>
+                            <option value="Admin">Admin</option>
+                            <option value="Seller">Vendedor</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="user-password-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="user-password">Contraseña</label>
+                            <input type="password" id="user-password" autocomplete="new-password" minlength="8"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-password-confirm">
+                                Confirmar contraseña
+                            </label>
+                            <input type="password" id="user-password-confirm" autocomplete="new-password" minlength="8"/>
+                        </div>
+                        <p id="new-user-password-error" class="form-error" hidden></p>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="user-modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="user-save-button">Guardar usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="user-password-modal" class="modal-overlay" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Restablecer contraseña</h2>
+                <button type="button" class="modal-close" id="user-password-modal-close" aria-label="Cerrar">×</button>
+            </div>
+            <form id="user-password-form">
+                <p>Usuario:<strong id="user-password-name"></strong></p>
+                <hidden-input type="hidden" id="resetting-password-user-name" />
+                <hidden-input type="hidden" id="resetting-password-user-mail" />
+                <hidden-input type="hidden" id="resetting-password-user-role" />
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="change-user-password">Nueva contraseña</label>
+                        <input type="password" id="change-user-password" autocomplete="new-password" minlength="8" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="change-user-password-confirm">Confirmar nueva contraseña</label>
+                        <input type="password" id="change-user-password-confirm" autocomplete="new-password" minlength="8" required/>
+                    </div>
+                </div>
+                <p id="change-user-password-error" class="form-error" hidden></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="user-password-modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="user-password-save-button">Restablecer contraseña</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>
