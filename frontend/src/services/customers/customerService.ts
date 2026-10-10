@@ -1,4 +1,4 @@
-import { get, getByFilter, post, put, del } from "../api/http";
+import { get, getByFilter, post, put, del, patch } from "../api/http";
 import type { PagedResult } from "../../types/pagination";
 
 export interface Customer {
@@ -70,8 +70,6 @@ export async function delCustomer(id: number): Promise<Customer> {
         `/customers/${id}`
     );
 }
-
-import { patch } from "../api/http";
 
 export async function activateCustomer(id: number): Promise<Customer> {
 
