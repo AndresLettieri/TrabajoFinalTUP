@@ -1,3 +1,5 @@
+using DistribuidoraAPI.DTOs;
+using DistribuidoraAPI.DTOs.Category;
 using DistribuidoraAPI.DTOs.Vendor;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
@@ -35,6 +37,20 @@ public class VendorService : IVendorService
             throw new KeyNotFoundException($"No se encontró el proveedor con ID {id}");
 
         return Map(vendor);
+    }
+
+    public async Task<PagedResultDto<VendorResponseDto>> GetByFilter(VendorFilterDto filter)
+    {
+        var vendors = await _unitOfWork.Vendors.GetFilteredVendors(filter);
+
+        return new PagedResultDto<VendorResponseDto>
+        {
+            Items = vendors.Items.Select(Map).ToList(),
+            TotalItems = vendors.TotalItems,
+            Page = vendors.Page,
+            PageSize = vendors.PageSize,
+            TotalPages = vendors.TotalPages
+        };
     }
 
     public async Task<VendorResponseDto> Create(CreateVendorRequest request)
@@ -91,6 +107,22 @@ public class VendorService : IVendorService
             throw new KeyNotFoundException($"No se encontró el proveedor con ID {id}");
 
         vendor.Active = false;
+        vendor.ModifiedAt = DateTime.UtcNow;
+        vendor.ModifiedBy = userId;
+
+        _unitOfWork.Vendors.Update(vendor);
+        await _unitOfWork.SaveChanges();
+    }
+
+    public async Task Activate(int id, int userId)
+    {
+        var vendor = await _unitOfWork.Vendors.GetByIdAsync(id);
+
+        if (vendor == null)
+            throw new KeyNotFoundException($"No se encontró el proveedor con ID {id}");
+
+
+        vendor.Active = true;
         vendor.ModifiedAt = DateTime.UtcNow;
         vendor.ModifiedBy = userId;
 
