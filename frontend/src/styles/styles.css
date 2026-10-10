@@ -442,7 +442,8 @@ button {
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   box-sizing: border-box;
   width: 100%;
 
@@ -490,6 +491,92 @@ button {
     }
 
 }
+
+/* Separación entre secciones */
+.form-section {
+    margin-bottom: 12px;
+}
+
+.form-section h3 {
+    margin: 0 0 14px;
+    padding-bottom: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+/* Dos columnas */
+.form-grid-double {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0px 16px;
+}
+
+/* Campos */
+.form-group-double {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.form-group-double label {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.form-group-double input,
+.form-group-double select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+
+  padding: 10px 12px;
+
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--color-texto);
+
+  background-color: var(--color-blanco);
+  border: 1px solid var(--color-borde);
+  border-radius: 6px;
+
+  resize: vertical;
+}
+
+/* Campos que ocupan ambas columnas */
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+/* Botones al pie */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+/* Una columna en pantallas pequeñas */
+@media (max-width: 520px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-full {
+        grid-column: auto;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .modal-actions button {
+        width: 100%;
+    }
+}
+
 
 
 /* =========================
