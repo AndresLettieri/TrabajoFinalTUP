@@ -15,12 +15,12 @@ public class DashboardController : ControllerBase
         _dashboardService = dashboardService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<AdminDashboardResponseDto>> GetAdminDashboard([FromQuery] DateTime? dateFrom, [FromQuery] DateTime? dateTo)
+    [HttpGet("admin")]
+    public async Task<ActionResult<AdminDashboardResponseDto>> GetAdminDashboard([FromQuery] int userId, [FromQuery] DateTime? dateFrom, [FromQuery] DateTime? dateTo)
     {
         try
         {
-            var dashboard = await _dashboardService.GetAdminDashboard(dateFrom, dateTo);
+            var dashboard = await _dashboardService.GetAdminDashboard(userId,dateFrom, dateTo);
             return Ok(dashboard);
         }
         catch (ArgumentException ex)
