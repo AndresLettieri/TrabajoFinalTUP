@@ -1617,6 +1617,39 @@ body.modal-open {
 .reports-page [hidden] {
     display: none !important;
 }
+
+.report-customer-results {
+    margin-top: 0.35rem;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color, #ccc);
+    border-radius: 6px;
+    background: var(--surface-color, #fff);
+}
+
+
+.report-customer-option {
+    display: block;
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: none;
+    border-bottom: 1px solid var(--border-color, #eee);
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.report-customer-option:hover,
+.report-customer-option:focus {
+    background: var(--hover-color, #f2f2f2);
+}
+
+.report-customer-selected {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
 @media (max-width: 768px) {
     .report-detail-header {
         align-items: flex-start;

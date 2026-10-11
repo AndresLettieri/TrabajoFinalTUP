@@ -111,6 +111,12 @@ export interface ProfitReport {
     sales: ProfitReportSale[];
 }
 
+export interface SalesReportFilter {
+    dateFrom?: string;
+    dateTo?: string;
+    customerId?: number;
+}
+
 export async function getPurchasesReport(filters: PurchasesReportFilter = {},): Promise<PurchasesReportResponse> {
     const params = new URLSearchParams();
 
@@ -172,4 +178,46 @@ export async function getProfitByPeriod(
         : "/reports/profit";
 
     return get<ProfitReport>(endpoint);
+}
+
+export async function getSalesByCustomer(
+    customerId: number,
+    filters: SalesReportFilter = {},
+): Promise<SalesReportResponse> {
+    const params = new URLSearchParams();
+
+    params.append("customerId", customerId.toString());
+
+    if (filters.dateFrom) {
+        params.append("dateFrom", filters.dateFrom);
+    }
+
+    if (filters.dateTo) {
+        params.append("dateTo", filters.dateTo);
+    }
+
+    return get<SalesReportResponse>(
+        `/reports/sales/by-customer?${params.toString()}`
+    );
+}
+
+export async function getSalesBySeller(
+    sellerId: number,
+    filters: SalesReportFilter = {},
+): Promise<SalesReportResponse> {
+    const params = new URLSearchParams();
+
+    params.append("sellerId", sellerId.toString());
+
+    if (filters.dateFrom) {
+        params.append("dateFrom", filters.dateFrom);
+    }
+
+    if (filters.dateTo) {
+        params.append("dateTo", filters.dateTo);
+    }
+
+    return get<SalesReportResponse>(
+        `/reports/sales/by-seller?${params.toString()}`
+    );
 }

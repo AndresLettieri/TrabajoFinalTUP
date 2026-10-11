@@ -44,7 +44,21 @@
                     <option value="">Todos los proveedores</option>
                 </select>
             </div>
-
+            <div id="report-customer-filter" class="form-group" hidden>
+                <label for="report-customer-search">Cliente</label>
+                <input type="text" id="report-customer-search" placeholder="Buscar cliente por nombre..." autocomplete="off"/>
+                <input type="hidden" id="report-customer-id" />
+                <div id="report-customer-results" class="report-customer-results" hidden></div>
+                <p id="report-customer-error" class="form-error" hidden></p>
+                <p id="report-customer-selected" hidden></p>
+            </div>
+            <div id="report-seller-filter" class="form-group" hidden>
+                <label for="report-seller">Vendedor</label>
+                <select id="report-seller">
+                    <option value="">Seleccioná un vendedor</option>
+                </select>
+                <p id="report-seller-error" class="form-error" hidden></p>
+            </div>
             <div class="report-actions">
                 <button
                     type="button"

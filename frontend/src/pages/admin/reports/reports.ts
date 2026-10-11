@@ -1,12 +1,15 @@
 import reportsHtml from "./reports.html?raw";
 
-import { getSalesReport, getPurchasesReport, getProfitByPeriod,
-    type OrderReport, type PurchaseReport, type ProfitReportSale } from "../../../services/reports/reportService";
+import { getSalesReport, getPurchasesReport, getProfitByPeriod, getSalesByCustomer,
+    type OrderReport, type PurchaseReport, type ProfitReportSale, 
+    getSalesBySeller} from "../../../services/reports/reportService";
 import { renderLayout } from "../../shared/layout";
 import { formatCurrency } from "../../../utils/formatsUtils";
 import { getVendors } from "../../../services/vendors/vendorService";
+import { getUser, type User } from "../../../services/users/userService";
 import { populateSelect } from "../../../utils/selectOptions";
-    
+import { getCustomers, type Customer } from "../../../services/customers/customerService";
+import { initCustomerSearch } from "../../../components/customerSearch/customerSearch";
 
 interface ReportConfig {
     title: string;
@@ -15,6 +18,8 @@ interface ReportConfig {
     itemsLabel?: string;
     showItemsCard: boolean;
     showVendorFilter: boolean;
+    showCustomerFilter: boolean;
+    showSellerFilter: boolean;
     headers: string[];
 }
 
@@ -26,6 +31,8 @@ const reportConfig: Partial<Record<ReportType, ReportConfig>> = {
         itemsLabel: "Artículos vendidos",
         showItemsCard: true,
         showVendorFilter: false,
+        showCustomerFilter: false,
+        showSellerFilter: false,
         headers: ["Comprobante", "Fecha", "Cliente", "Vendedor", "Total"],
     },
     "purchases-period": {
@@ -34,6 +41,8 @@ const reportConfig: Partial<Record<ReportType, ReportConfig>> = {
         countLabel: "Cantidad de compras",
         showItemsCard: false,
         showVendorFilter: true,
+        showCustomerFilter: false,
+        showSellerFilter: false,
         headers: ["Comprobante", "Fecha", "Proveedor", "Total"],
     },
     "profit-period": {
@@ -42,8 +51,30 @@ const reportConfig: Partial<Record<ReportType, ReportConfig>> = {
         countLabel: "Cantidad de ventas",
         showItemsCard: false,
         showVendorFilter: false,
+        showCustomerFilter: false,
+        showSellerFilter: false,
         headers: ["Comprobante","Fecha","Cliente","Vendedor","Ganancia"],
     },
+    "sales-customer": {
+        title: "Ventas por cliente",
+        totalLabel: "Total vendido",
+        countLabel: "Cantidad de comprobantes",
+        showItemsCard: false,
+        showVendorFilter: false,
+        showCustomerFilter: true,
+        showSellerFilter: false,
+        headers: ["Comprobante","Fecha","Cliente","Vendedor","Total"],
+    },
+    "sales-seller": {
+        title: "Ventas por vendedor",
+        totalLabel: "Total vendido",
+        countLabel: "Cantidad de comprobantes",
+        showItemsCard: false,
+        showVendorFilter: false,
+        showCustomerFilter: false,
+        showSellerFilter: true,
+        headers: ["Comprobante", "Fecha", "Cliente", "Vendedor", "Total"],
+    }
 };
 
 type ReportType =
@@ -73,6 +104,12 @@ export function renderReports(): void {
 
         if (reportTypeSelect.value === "purchases-period") {
             void loadVendors();
+        }
+        if (reportTypeSelect.value === "sales-customer") {
+            void loadCustomers();
+        }
+        if (reportTypeSelect.value === "sales-seller") {
+            void loadSellers();
         }
     });
     
@@ -110,6 +147,12 @@ export function renderReports(): void {
     const itemsLabel = document.querySelector<HTMLElement>("#report-items-label");
     const itemsCard = document.querySelector<HTMLElement>("#report-items-card");
     const tableHeaders = document.querySelector<HTMLTableRowElement>("#report-table-headers");
+    const customerFilter = document.querySelector<HTMLDivElement>("#report-customer-filter");
+    const customerSearchInput = document.querySelector<HTMLInputElement>("#report-customer-search");
+    const customerIdInput = document.querySelector<HTMLInputElement>("#report-customer-id");
+    const customerResults = document.querySelector<HTMLDivElement>("#report-customer-results");
+    const customerSelected = document.querySelector<HTMLParagraphElement>("#report-customer-selected");
+    const sellerErrorElement = document.querySelector<HTMLParagraphElement>("#report-seller-error");
 
     const pageSize = 10;
     let currentPage = 1;
@@ -118,15 +161,20 @@ export function renderReports(): void {
     let reportPurchase: PurchaseReport[] = [];
     let reportProfit: ProfitReportSale[] = [];
 
+    let customers: Customer[] = [];
+
     function configureReport(): void {
         const config = reportConfig[reportTypeSelect!.value as ReportType];
 
         const title = document.querySelector<HTMLElement>("#report-results-title");
         const vendorFilter = document.querySelector<HTMLDivElement>("#report-vendor-filter");
+        const sellerSelect = document.querySelector<HTMLSelectElement>("#report-seller-filter");
 
         if (!config) {
             if (title) title.textContent = "";
             if (vendorFilter) vendorFilter.hidden = true;
+            if (customerFilter) customerFilter.hidden = true;
+            if (sellerSelect) sellerSelect.hidden = true;
             itemsCard!.hidden = true;
             tableHeaders!.innerHTML = "";
             return;
@@ -145,6 +193,14 @@ export function renderReports(): void {
 
         if (vendorFilter) {
             vendorFilter.hidden = !config.showVendorFilter;
+        }
+
+        if (customerFilter) {
+            customerFilter.hidden = !config.showCustomerFilter;
+        }
+
+        if (sellerSelect) {
+            sellerSelect.hidden = !config.showSellerFilter;
         }
 
         tableHeaders!.innerHTML = config.headers
@@ -171,8 +227,6 @@ export function renderReports(): void {
 
     function clearReportResults(): void {
 
-
-
         totalSoldElement!.textContent = formatCurrency(0);
         salesCountElement!.textContent = "0";
         itemsSoldElement!.textContent = "0";
@@ -187,9 +241,14 @@ export function renderReports(): void {
         emptyMessage!.hidden = true;
 
         reportContent!.hidden = !reportTypeSelect!.value;
-        reportResults!.hidden = true;
+        reportResults!.hidden = true; 
 
-        
+        customerSearchInput!.value = "";
+        customerIdInput!.value = "";
+        customerResults!.innerHTML = "";
+        customerResults!.hidden = true;
+        customerSelected!.textContent = "";
+        customerSelected!.hidden = true;
     }
     
     function renderTable<T>(data: T[], renderRow: (item: T) => string, emptyLabel: string): void {
@@ -272,6 +331,8 @@ export function renderReports(): void {
         );
     }
 
+
+
     const reportHandlers: Record<string,{getTotalItems: () => number; renderTable: () => void; generate: () => Promise<void>;}> = {
         "sales-period": {
             getTotalItems: () => reportSales.length,
@@ -287,6 +348,16 @@ export function renderReports(): void {
             getTotalItems: () => reportProfit.length,
             renderTable: renderProfitTable,
             generate: generateProfitReport,
+        },
+        "sales-customer": {
+            getTotalItems: () => reportSales.length,
+            renderTable: renderSalesTable,
+            generate: generateSalesByCustomerReport,
+        },
+        "sales-seller": {
+            getTotalItems: () => reportSales.length,
+            renderTable: renderSalesTable,
+            generate: generateSalesBySellerReport,
         },
     };
     
@@ -345,6 +416,109 @@ export function renderReports(): void {
         return { dateFrom, dateTo };
     }
 
+    async function generateSalesBySellerReport(): Promise<void> {
+        const dates = validateReportDates();
+        if (!dates) return;
+        const { dateFrom, dateTo } = dates;
+        try {
+            const sellerSelect = document.querySelector<HTMLSelectElement>("#report-seller");
+            const sellerId = Number(sellerSelect!.value);
+            console.log("Selected seller ID:", sellerId);
+        if (!Number.isInteger(sellerId) || sellerId <= 0) {
+            sellerErrorElement!.textContent = "Seleccioná un vendedor de la lista.";
+            sellerErrorElement!.hidden = false;
+            return;
+        }
+            const report = await getSalesBySeller(sellerId,
+                {
+                    dateFrom: dateFrom || undefined,
+                    dateTo: dateTo || undefined,
+                }
+            );
+
+            reportResults!.hidden = false;
+
+            reportSales = report.sales.filter((sale) => !sale.cancelled);
+            totalSoldElement!.textContent = formatCurrency(report.totalAmount);
+            salesCountElement!.textContent = report.salesCount.toLocaleString("es-AR");
+            itemsSoldElement!.textContent = "";
+            emptyMessage!.hidden = report.salesCount > 0;
+            currentPage = 1;
+            renderSalesTable();
+
+        } catch (error) {
+            console.error("Error al generar el reporte de ventas por vendedor:", error);
+            errorElement!.textContent = "No se pudo generar el reporte de ventas por vendedor. Intentá nuevamente.";
+        } finally {
+            resetGenerateButton();
+        }
+    }
+
+    async function generateSalesByCustomerReport(): Promise<void> {
+        const dates = validateReportDates();
+        const customerErrorElement = document.getElementById("report-customer-error");
+        
+        if (!dates) return;
+
+        const customerId = Number(customerIdInput!.value);
+        if (!customerIdInput!.value || !Number.isInteger(customerId)) {
+            customerErrorElement!.textContent = "Seleccioná un cliente de la lista.";
+            customerErrorElement!.hidden = false;
+            return;
+        }
+        const { dateFrom, dateTo } = dates;
+        try {
+            const report = await getSalesByCustomer(customerId, {
+                dateFrom: dateFrom || undefined,
+                dateTo: dateTo || undefined,
+            });
+
+            reportResults!.hidden = false;
+
+            reportSales = report.sales.filter((sale) => !sale.cancelled);
+            currentPage = 1;
+            renderSalesTable();
+
+            const activeSales = report.sales.filter(
+                (sale) => !sale.cancelled,
+            );
+
+            const itemsSold = activeSales.reduce(
+                (total, sale) =>
+                    total +
+                    sale.details.reduce(
+                        (detailTotal, detail) =>
+                            detailTotal + detail.quantity,
+                        0,
+                    ),
+                0,
+            );
+
+            totalSoldElement!.textContent = formatCurrency(
+                activeSales.reduce((total, sale) => total + sale.total, 0),
+            );
+
+            salesCountElement!.textContent = activeSales.length.toLocaleString(
+                "es-AR",
+            );
+
+            itemsSoldElement!.textContent = itemsSold.toLocaleString("es-AR");
+
+            emptyMessage!.hidden = activeSales.length > 0;
+        } catch (error) {
+            console.error(
+                "Error al generar el reporte de ventas por cliente:",
+                error,
+            );
+
+            errorElement!.textContent =
+                "No se pudo generar el reporte de ventas por cliente. Intentá nuevamente.";
+        } finally {
+            resetGenerateButton();
+            customerErrorElement!.hidden = true;
+            customerErrorElement!.textContent = "";
+        }
+    }
     async function generateProfitReport(): Promise<void> {
         const dates = validateReportDates();
 
@@ -476,8 +650,50 @@ export function renderReports(): void {
 
         await handler.generate();
     });
-    
+
+            
+    async function loadCustomers(): Promise<void> {
+        if (customers.length > 0) 
+            return;
+
+        try {
+            customers = await getCustomers();
+
+            await initCustomerSearch({
+                input: customerSearchInput!,
+                hiddenInput: customerIdInput!,
+                results: customerResults!,
+                selectedMessage: customerSelected!,
+                customers: customers,
+                onSelect: (customer) => {
+                    customerIdInput!.value = String(customer.id);
+                },
+            });
+        } catch (error) {
+            console.error("Error al cargar los clientes del reporte:",error);
+            throw error;
+        }
+    }
+
+
 }
+
+async function loadSellers(): Promise<void> {
+    const sellerSelect = document.querySelector<HTMLSelectElement>("#report-seller");
+    if (sellerSelect!.length > 1) {
+        return;
+    }
+
+    try {
+        const sellers = (await getUser()).filter(user => user.role === "Seller");
+        populateSelect(sellerSelect!, sellers, "Seleccioná un vendedor");
+    } catch (error) {
+        console.error("Error al cargar las opciones del reporte:", error);
+        throw error;
+    }
+}
+
+        
 
 async function loadVendors(): Promise<void> {
     const vendorSelect = document.querySelector<HTMLSelectElement>("#report-vendor");
@@ -489,8 +705,8 @@ async function loadVendors(): Promise<void> {
         const vendors = await getVendors();
         populateSelect(vendorSelect!, vendors, "Seleccioná un proveedor");
     } catch (error) {
-        console.error("Error al cargar las opciones de la compra:", error);
+        console.error("Error al cargar las opciones del reporte:", error);
         throw error;
     }
-
 }
+
