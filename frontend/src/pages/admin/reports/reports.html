@@ -1,3 +1,142 @@
-<section class="page">
-    <h2>Reportes</h2>
+<section class="reports-page">
+    <header class="report-header">
+        <div>
+            <h2>Reportes</h2>
+        </div>
+    </header>
+
+    <section class="report-section">
+        <div class="report-field">
+            <label for="report-type">Tipo de reporte</label>
+            <select id="report-type">
+                <option value="">Seleccioná un reporte</option>
+                <option value="sales-period">Ventas por período</option>
+                <option value="purchases-period">Compras por período</option>
+                <option value="profit-period">Ganancias por período</option>
+                <option value="sales-customer">Ventas por cliente</option>
+                <option value="sales-seller">Ventas por vendedor</option>
+                <option value="best-selling-products">Productos más vendidos</option>
+                <option value="best-selling-categories">Categorías más vendidas</option>
+                <option value="profit-category">Ganancias por categoría</option>
+            </select>
+        </div>
+    </section>
+
+    <div id="report-content" hidden>
+        <section class="report-section" id="report-filters">
+            <h3>Filtros</h3>
+
+            <div class="report-filters-grid">
+                <div class="report-field">
+                    <label for="report-date-from">Fecha desde</label>
+                    <input type="date" id="report-date-from">
+                </div>
+
+                <div class="report-field">
+                    <label for="report-date-to">Fecha hasta</label>
+                    <input type="date" id="report-date-to">
+                </div>
+            </div>
+
+            <div class="report-field" id="report-vendor-filter" hidden>
+                <label for="report-vendor">Proveedor</label>
+                <select id="report-vendor">
+                    <option value="">Todos los proveedores</option>
+                </select>
+            </div>
+            <div id="report-customer-filter" class="form-group" hidden>
+                <label for="report-customer-search">Cliente</label>
+                <input type="text" id="report-customer-search" placeholder="Buscar cliente por nombre..." autocomplete="off"/>
+                <input type="hidden" id="report-customer-id" />
+                <div id="report-customer-results" class="report-customer-results" hidden></div>
+                <p id="report-customer-error" class="form-error" hidden></p>
+                <p id="report-customer-selected" hidden></p>
+            </div>
+            <div id="report-seller-filter" class="form-group" hidden>
+                <label for="report-seller">Vendedor</label>
+                <select id="report-seller">
+                    <option value="">Seleccioná un vendedor</option>
+                </select>
+                <p id="report-seller-error" class="form-error" hidden></p>
+            </div>
+            <div class="report-actions">
+                <button
+                    type="button"
+                    id="generate-report-button"
+                    class="btn btn-primary"
+                >
+                    Consultar
+                </button>
+            </div>
+        </section>
+
+        <section class="report-section" id="report-results" hidden>
+            <h3 id="report-results-title"></h3>
+
+            <div class="report-summary">
+                <article class="report-summary-card">
+                    <span id="report-total-label">Total vendido</span>
+                    <strong id="report-total-sold">$ 0,00</strong>
+                </article>
+
+                <article class="report-summary-card">
+                    <span id="report-count-label">Cantidad de comprobantes</span>
+                    <strong id="report-sales-count">0</strong>
+                </article>
+
+                <article class="report-summary-card" id="report-items-card">
+                    <span id="report-items-label">Artículos vendidos</span>
+                    <strong id="report-items-sold">0</strong>
+                </article>
+            </div>
+            
+            <section class="report-detail">
+                <div class="report-detail-header">
+                    <h3>Detalle de ventas</h3>
+                    <span id="report-pagination-info"></span>
+                </div>
+
+                <div class="report-table-container">
+                    <table class="report-table">
+                    <thead>
+                        <tr id="report-table-headers">
+                            <th>Comprobante</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Vendedor</th>
+                            <th class="report-table-number">Total</th>
+                        </tr>
+                    </thead>
+                        <tbody id="report-sales-table-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="report-pagination">
+                    <button
+                        type="button"
+                        id="report-previous-page"
+                        class="btn btn-secondary"
+                    >
+                        Anterior
+                    </button>
+
+                    <span id="report-current-page"></span>
+
+                    <button
+                        type="button"
+                        id="report-next-page"
+                        class="btn btn-secondary"
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            </section>
+
+            <p id="report-empty-message" hidden>
+                No hay resultados para los filtros seleccionados.
+            </p>
+
+            <p id="report-error" class="form-error" role="alert"></p>
+        </section>
+    </div>
 </section>
