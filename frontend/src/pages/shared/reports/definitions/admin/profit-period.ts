@@ -1,6 +1,6 @@
-import { getProfitByPeriod } from "../../../../services/reports/reportService";
-import type { ProfitReportSale } from "../../../../services/reports/reportService";
-import type { ReportDefinition } from "../../../../utils/reportsCore/report.types";
+import { getProfitByPeriod } from "../../../../../services/reports/reportService";
+import type { ProfitReportSale } from "../../../../../services/reports/reportService";
+import type { ReportDefinition } from "../../../../../utils/reportsCore/report.types";
 
 const profitPeriodReport: ReportDefinition<ProfitReportSale> = {
     id: "profit-period",

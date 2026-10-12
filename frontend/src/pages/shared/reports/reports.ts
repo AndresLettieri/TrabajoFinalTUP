@@ -1,11 +1,11 @@
 import reportsHtml from "./reports.html?raw";
-import { renderLayout } from "../shared/layout";
-import { formatCurrency } from "../../utils/formatsUtils";
-import { reports } from "../../utils/reportsCore/report.registry";
-import { getReportById } from "../../utils/reportsCore/report.registry";
-import { renderReportGrid } from "../../utils/reportsCore/report-grid";
-import { renderReportFilters } from "../../utils/reportsCore/report-filters";
-import { loadReportFilterOptions } from "../../utils/reportsCore/report-filter-options";
+import { renderLayout } from "../../shared/layout";
+import { formatCurrency } from "../../../utils/formatsUtils";
+import { reports } from "../../../utils/reportsCore/report.registry";
+import { getReportById } from "../../../utils/reportsCore/report.registry";
+import { renderReportGrid } from "../../../utils/reportsCore/report-grid";
+import { renderReportFilters } from "../../../utils/reportsCore/report-filters";
+import { loadReportFilterOptions } from "../../../utils/reportsCore/report-filter-options";
 
 
 export function renderReports(): void {

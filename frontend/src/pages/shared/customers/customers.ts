@@ -1,12 +1,12 @@
 import customersHtml from "./customers.html?raw";
 
-import { renderLayout } from "../shared/layout";
-import { getCustomerByFilter, createCustomer, updateCustomer, delCustomer, activateCustomer, type CustomerFilter, type Customer} from "../../services/customers/customerService";
-import { renderPagination } from "../../components/pagination/pagination";
-import { getCrudStateContainer, renderCrudStates, showCrudState } from "../../components/crud-state/crudState";
-import { createPaginationState } from "../../components/pagination/paginationState";
-import { withLoadingButton } from "../../components/loading/withLoadingButton";
-import { sortItems } from "../../utils/sort";
+import { renderLayout } from "../../shared/layout";
+import { getCustomerByFilter, createCustomer, updateCustomer, delCustomer, activateCustomer, type CustomerFilter, type Customer} from "../../../services/customers/customerService";
+import { renderPagination } from "../../../components/pagination/pagination";
+import { getCrudStateContainer, renderCrudStates, showCrudState } from "../../../components/crud-state/crudState";
+import { createPaginationState } from "../../../components/pagination/paginationState";
+import { withLoadingButton } from "../../../components/loading/withLoadingButton";
+import { sortItems } from "../../../utils/sort";
 
 const pagination = createPaginationState<Customer>();
 

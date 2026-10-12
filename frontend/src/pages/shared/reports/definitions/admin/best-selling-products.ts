@@ -1,6 +1,6 @@
-import { getTopProductsReport } from "../../../../services/reports/reportService";
-import type { SalesTopProductsResponse } from "../../../../services/reports/reportService";
-import type { ReportDefinition } from "../../../../utils/reportsCore/report.types";
+import { getTopProductsReport } from "../../../../../services/reports/reportService";
+import type { SalesTopProductsResponse } from "../../../../../services/reports/reportService";
+import type { ReportDefinition } from "../../../../../utils/reportsCore/report.types";
 
 const bestSellingProductsReport: ReportDefinition<SalesTopProductsResponse> = {
     id: "best-selling-products",
