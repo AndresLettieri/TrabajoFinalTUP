@@ -11,4 +11,8 @@ public interface IOrderService
     Task<OrderResponseDto> GetById(int id);
     Task<OrderResponseDto> Create(CreateOrderRequest request);
     Task Cancel(int id, int userId);
+    Task<List<TopProductDto>> GetTopProductsReport(DateTime? dateFrom, DateTime? dateTo, int topN = 10);
+    Task<List<TopCategoryDto>> GetTopCategoriesReport(DateTime? dateFrom, DateTime? dateTo, int topN = 10);
+    Task<List<TopCategoryDto>> GetProfitByCategory(DateTime? dateFrom, DateTime? dateTo);
+
 }

@@ -23,6 +23,7 @@ public class OrderService : IOrderService
     public async Task<IEnumerable<OrderResponseDto>> GetAll(OrderFilterRequest? filters = null)
     {
         var normalizedFilters = NormalizeFilters(filters);
+
         var orders = await _unitOfWork.Orders.Search(
             normalizedFilters.DateFrom,
             normalizedFilters.DateToInclusive,
@@ -35,24 +36,16 @@ public class OrderService : IOrderService
 
     public async Task<SalesReportResponseDto> GetSalesReport(DateTime? dateFrom, DateTime? dateTo, int? customerId = null, int? sellerId = null)
     {
-        if (!dateFrom.HasValue || !dateTo.HasValue)
-            throw new ArgumentException("Las fechas desde y hasta son obligatorias");
+        var (startDate, endDate, endDateInclusive) = ValidateDateRange(dateFrom, dateTo);
 
-        if (customerId.HasValue && customerId.Value <= 0)
-            throw new ArgumentException("El cliente debe ser mayor que cero");
+        ValidateOptionalId(customerId, "El cliente");
+        ValidateOptionalId(sellerId, "El vendedor");
 
-        if (sellerId.HasValue && sellerId.Value <= 0)
-            throw new ArgumentException("El vendedor debe ser mayor que cero");
-
-        var startDate = dateFrom.Value.Date;
-        var endDate = dateTo.Value.Date;
-        if (startDate > endDate)
-            throw new ArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
-
-        var endDateInclusive = endDate == DateTime.MaxValue.Date
-            ? DateTime.MaxValue
-            : endDate.AddDays(1).AddTicks(-1);
-        var orders = (await _unitOfWork.Orders.GetSalesBetweenDates(startDate, endDateInclusive, customerId, sellerId)).ToList();
+        var orders = (await _unitOfWork.Orders.GetSalesBetweenDates(
+            startDate,
+            endDateInclusive,
+            customerId,
+            sellerId)).ToList();
 
         return new SalesReportResponseDto
         {
@@ -64,30 +57,64 @@ public class OrderService : IOrderService
         };
     }
 
+    public async Task<List<TopProductDto>> GetTopProductsReport(DateTime? dateFrom, DateTime? dateTo, int topN = 10)
+    {
+        var (startDate, _, endDateInclusive) = ValidateDateRange(dateFrom, dateTo);
+        ValidateTopN(topN, "productos");
+
+        var topProducts = await _unitOfWork.Orders.GetTopProductsBetweenDates(startDate, endDateInclusive, topN);
+
+        return topProducts.Select(tp => new TopProductDto
+        {
+            ProductCode = tp.ProductCode,
+            ProductDescription = tp.ProductDescription,
+            CategoryName = tp.CategoryName,
+            TotalQuantitySold = tp.TotalQuantitySold,
+            TotalSales = tp.TotalSales,
+            TotalProfit = tp.TotalProfit
+        }).ToList();
+    }
+
+    public async Task<List<TopCategoryDto>> GetTopCategoriesReport(DateTime? dateFrom, DateTime? dateTo, int topN = 10)
+    {
+        var (startDate, _, endDateInclusive) = ValidateDateRange(dateFrom, dateTo);
+        ValidateTopN(topN, "categorías");
+
+        var topCategories = await _unitOfWork.Orders.GetTopCategoriesBetweenDates(startDate, endDateInclusive, topN);
+
+        return topCategories.Select(tc => new TopCategoryDto
+        {
+            CategoryName = tc.CategoryName,
+            TotalQuantitySold = tc.TotalQuantitySold,
+            TotalSales = tc.TotalSales,
+            TotalProfit = tc.TotalProfit
+        }).ToList();
+    }
+
+    public async Task<List<TopCategoryDto>> GetProfitByCategory(DateTime? dateFrom, DateTime? dateTo)
+    {
+        var (startDate, _, endDateInclusive) = ValidateDateRange(dateFrom, dateTo);
+        var topCategories = await _unitOfWork.Orders.GetTopCategoriesBetweenDates(startDate, endDateInclusive, int.MaxValue); 
+        return topCategories.Select(tc => new TopCategoryDto
+        {
+            CategoryName = tc.CategoryName,
+            TotalQuantitySold = tc.TotalQuantitySold,
+            TotalSales = tc.TotalSales,
+            TotalProfit = tc.TotalProfit
+        }).ToList();
+    }
+
     public async Task<ProfitReportResponseDto> GetProfitReport(DateTime? dateFrom, DateTime? dateTo)
     {
-        if (!dateFrom.HasValue || !dateTo.HasValue)
-            throw new ArgumentException("Las fechas desde y hasta son obligatorias");
+        var (startDate, endDate, endDateInclusive) = ValidateDateRange(dateFrom, dateTo);
 
-        var startDate = dateFrom.Value.Date;
-        var endDate = dateTo.Value.Date;
-        if (startDate > endDate)
-            throw new ArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
+        var orders = await _unitOfWork.Orders.GetSalesBetweenDates(
+            startDate,
+            endDateInclusive);
 
-        var endDateInclusive = endDate == DateTime.MaxValue.Date
-            ? DateTime.MaxValue
-            : endDate.AddDays(1).AddTicks(-1);
-        var orders = await _unitOfWork.Orders.GetSalesBetweenDates(startDate, endDateInclusive);
-        var sales = orders.Select(order => new ProfitReportSaleDto
+        var sales = orders.Select(order =>
         {
-            Id = order.Id,
-            Number = order.Number,
-            Date = order.Date,
-            CustomerName = order.Customer.Name,
-            SellerName = order.User.Name,
-            Total = order.Total,
-            Profit = order.Details.Sum(CalculateLineProfit),
-            Details = order.Details.Select(detail => new ProfitReportDetailDto
+            var details = order.Details.Select(detail => new ProfitReportDetailDto
             {
                 ProductId = detail.ProductId,
                 ProductCode = detail.Product.Code,
@@ -97,7 +124,19 @@ public class OrderService : IOrderService
                 PurchasePrice = detail.PurchasePrice,
                 Subtotal = detail.Subtotal,
                 Profit = CalculateLineProfit(detail)
-            }).ToList()
+            }).ToList();
+
+            return new ProfitReportSaleDto
+            {
+                Id = order.Id,
+                Number = order.Number,
+                Date = order.Date,
+                CustomerName = order.Customer.Name,
+                SellerName = order.User.Name,
+                Total = order.Total,
+                Profit = details.Sum(detail => detail.Profit),
+                Details = details
+            };
         }).ToList();
 
         return new ProfitReportResponseDto
@@ -125,23 +164,30 @@ public class OrderService : IOrderService
         var data = NormalizeAndValidate(request);
 
         await _unitOfWork.BeginTransaction(IsolationLevel.Serializable);
+
         try
         {
             var customer = await _unitOfWork.Customers.GetActiveCustomerById(data.CustomerId);
             if (customer is null)
-                throw new KeyNotFoundException($"No se encontró un cliente activo con ID {data.CustomerId}");
+                throw new KeyNotFoundException(
+                    $"No se encontró un cliente activo con ID {data.CustomerId}");
 
             var seller = await _unitOfWork.Users.GetActiveUserById(data.SellerId);
             if (seller is null || seller.Role != Role.Seller)
-                throw new KeyNotFoundException($"No se encontró un vendedor activo con ID {data.SellerId}");
+                throw new KeyNotFoundException(
+                    $"No se encontró un vendedor activo con ID {data.SellerId}");
 
-            var paymentMethod = await _unitOfWork.PaymentMethods.GetActivePaymentMethodById(data.PaymentMethodId);
+            var paymentMethod = await _unitOfWork.PaymentMethods
+                .GetActivePaymentMethodById(data.PaymentMethodId);
+
             if (paymentMethod is null)
-                throw new KeyNotFoundException($"No se encontró un medio de pago activo con ID {data.PaymentMethodId}");
+                throw new KeyNotFoundException(
+                    $"No se encontró un medio de pago activo con ID {data.PaymentMethodId}");
 
             var creator = await _unitOfWork.Users.GetActiveUserById(request.UserId);
             if (creator is null)
-                throw new KeyNotFoundException($"No se encontró un usuario activo con ID {request.UserId}");
+                throw new KeyNotFoundException(
+                    $"No se encontró un usuario activo con ID {request.UserId}");
 
             var number = await _unitOfWork.Orders.GetNextNumber();
             var details = new List<OrderDetail>();
@@ -151,25 +197,35 @@ public class OrderService : IOrderService
             foreach (var item in data.Details)
             {
                 var product = await _unitOfWork.Products.GetActiveProductById(item.ProductId);
+
                 if (product is null)
-                    throw new KeyNotFoundException($"No se encontró un producto activo con ID {item.ProductId}");
+                    throw new KeyNotFoundException(
+                        $"No se encontró un producto activo con ID {item.ProductId}");
 
                 if (product.Stock < item.Quantity)
                 {
                     throw new InvalidOperationException(
-                        $"Stock insuficiente para '{product.Description}'. Disponible: {product.Stock}; solicitado: {item.Quantity}");
+                        $"Stock insuficiente para '{product.Description}'. " +
+                        $"Disponible: {product.Stock}; solicitado: {item.Quantity}");
                 }
 
-                ValidateAmount(product.SalePrice, $"El precio de venta de '{product.Description}'");
-                ValidateAmount(product.PurchasePrice, $"El precio de compra de '{product.Description}'");
+                ValidateAmount(
+                    product.SalePrice,
+                    $"El precio de venta de '{product.Description}'");
+
+                ValidateAmount(
+                    product.PurchasePrice,
+                    $"El precio de compra de '{product.Description}'");
 
                 var subtotal = product.SalePrice * item.Quantity;
+
                 ValidateAmount(subtotal, $"El subtotal de '{product.Description}'");
 
                 total += subtotal;
                 ValidateAmount(total, "El total de la venta");
 
                 productsById.Add(product.Id, product);
+
                 details.Add(new OrderDetail
                 {
                     ProductId = product.Id,
@@ -180,6 +236,8 @@ public class OrderService : IOrderService
                     Subtotal = subtotal
                 });
             }
+
+            var now = DateTime.UtcNow;
 
             var order = new Order
             {
@@ -193,7 +251,7 @@ public class OrderService : IOrderService
                 Date = data.Date,
                 Total = total,
                 Cancelled = false,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = now,
                 CreatedBy = creator.Id,
                 Details = details
             };
@@ -206,20 +264,21 @@ public class OrderService : IOrderService
                 var product = productsById[detail.ProductId];
                 product.Stock -= detail.Quantity;
 
-                _unitOfWork.GetRepository<StockMovement>().Add(new StockMovement
-                {
-                    ProductId = product.Id,
-                    Product = product,
-                    Type = StockMovementType.Sale,
-                    Quantity = detail.Quantity,
-                    ReferenceId = order.Id,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = creator.Id
-                });
+                AddStockMovement(
+                    product,
+                    StockMovementType.Sale,
+                    detail.Quantity,
+                    order.Id,
+                    creator.Id,
+                    now);
             }
 
             await _unitOfWork.Commit();
-            _logger.LogInformation("Se registró la venta {OrderId} con comprobante {Number}", order.Id, order.Number);
+
+            _logger.LogInformation(
+                "Se registró la venta {OrderId} con comprobante {Number}",
+                order.Id,
+                order.Number);
 
             return Map(order);
         }
@@ -233,6 +292,7 @@ public class OrderService : IOrderService
     public async Task Cancel(int id, int userId)
     {
         await _unitOfWork.BeginTransaction(IsolationLevel.Serializable);
+
         try
         {
             var order = await _unitOfWork.Orders.GetByIdWithDetails(id);
@@ -244,40 +304,45 @@ public class OrderService : IOrderService
                 throw new InvalidOperationException($"La venta con ID {id} ya está anulada");
 
             var admin = await _unitOfWork.Users.GetActiveUserById(userId);
+
             if (admin is null || admin.Role != Role.Admin)
-                throw new UnauthorizedAccessException("Solo un administrador activo puede anular ventas");
+                throw new UnauthorizedAccessException(
+                    "Solo un administrador activo puede anular ventas");
 
             foreach (var detail in order.Details)
             {
                 if (detail.Product.Stock > int.MaxValue - detail.Quantity)
                 {
                     throw new InvalidOperationException(
-                        $"No se puede anular la venta: el stock de '{detail.Product.Description}' excedería el máximo permitido");
+                        $"No se puede anular la venta: el stock de " +
+                        $"'{detail.Product.Description}' excedería el máximo permitido");
                 }
             }
 
+            var now = DateTime.UtcNow;
+
             foreach (var detail in order.Details)
             {
-                detail.Product.Stock += detail.Quantity;
+                var product = detail.Product;
+                product.Stock += detail.Quantity;
 
-                _unitOfWork.GetRepository<StockMovement>().Add(new StockMovement
-                {
-                    ProductId = detail.ProductId,
-                    Product = detail.Product,
-                    Type = StockMovementType.SaleCancellation,
-                    Quantity = detail.Quantity,
-                    ReferenceId = order.Id,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = admin.Id
-                });
+                AddStockMovement(
+                    product,
+                    StockMovementType.SaleCancellation,
+                    detail.Quantity,
+                    order.Id,
+                    admin.Id,
+                    now);
             }
 
             order.Cancelled = true;
-            order.ModifiedAt = DateTime.UtcNow;
+            order.ModifiedAt = now;
             order.ModifiedBy = admin.Id;
 
             _unitOfWork.Orders.Update(order);
+
             await _unitOfWork.Commit();
+
             _logger.LogInformation("Se anuló la venta {OrderId}", order.Id);
         }
         catch
@@ -285,6 +350,20 @@ public class OrderService : IOrderService
             await _unitOfWork.Rollback();
             throw;
         }
+    }
+
+    private void AddStockMovement(Product product, StockMovementType type, int quantity, int referenceId, int userId, DateTime createdAt)
+    {
+        _unitOfWork.GetRepository<StockMovement>().Add(new StockMovement
+        {
+            ProductId = product.Id,
+            Product = product,
+            Type = type,
+            Quantity = quantity,
+            ReferenceId = referenceId,
+            CreatedAt = createdAt,
+            CreatedBy = userId
+        });
     }
 
     private static OrderResponseDto Map(Order order)
@@ -319,7 +398,46 @@ public class OrderService : IOrderService
         };
     }
 
-    private static decimal CalculateLineProfit(OrderDetail detail) => (detail.SalePrice - detail.PurchasePrice) * detail.Quantity;
+    private static decimal CalculateLineProfit(OrderDetail detail)
+    {
+        return (detail.SalePrice - detail.PurchasePrice) * detail.Quantity;
+    }
+
+    private static (DateTime StartDate, DateTime EndDate, DateTime EndDateInclusive)
+        ValidateDateRange(DateTime? dateFrom, DateTime? dateTo)
+    {
+        if (!dateFrom.HasValue || !dateTo.HasValue)
+            throw new ArgumentException("Las fechas desde y hasta son obligatorias");
+
+        var startDate = dateFrom.Value.Date;
+        var endDate = dateTo.Value.Date;
+
+        if (startDate > endDate)
+            throw new ArgumentException(
+                "La fecha desde no puede ser posterior a la fecha hasta");
+
+        return (startDate, endDate, ToInclusiveEndDate(endDate));
+    }
+
+    private static DateTime ToInclusiveEndDate(DateTime date)
+    {
+        return date.Date == DateTime.MaxValue.Date
+            ? DateTime.MaxValue
+            : date.Date.AddDays(1).AddTicks(-1);
+    }
+
+    private static void ValidateOptionalId(int? id, string fieldName)
+    {
+        if (id.HasValue && id.Value <= 0)
+            throw new ArgumentException($"{fieldName} debe ser mayor que cero");
+    }
+
+    private static void ValidateTopN(int topN, string entityName)
+    {
+        if (topN <= 0)
+            throw new ArgumentException(
+                $"El número de {entityName} a mostrar debe ser mayor que cero");
+    }
 
     private static OrderFilterData NormalizeFilters(OrderFilterRequest? filters)
     {
@@ -329,27 +447,30 @@ public class OrderService : IOrderService
         var sellerId = filters?.SellerId;
         var number = filters?.Number;
 
-        if (dateFrom.HasValue && dateTo.HasValue && dateFrom.Value.Date > dateTo.Value.Date)
-            throw new ArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
-
-        if (customerId.HasValue && customerId.Value <= 0)
-            throw new ArgumentException("El filtro de cliente debe ser mayor que cero");
-
-        if (sellerId.HasValue && sellerId.Value <= 0)
-            throw new ArgumentException("El filtro de vendedor debe ser mayor que cero");
-
-        if (number.HasValue && number.Value <= 0)
-            throw new ArgumentException("El filtro de número de venta debe ser mayor que cero");
-
-        DateTime? dateToInclusive = null;
-        if (dateTo.HasValue)
+        if (dateFrom.HasValue && dateTo.HasValue &&
+            dateFrom.Value.Date > dateTo.Value.Date)
         {
-            dateToInclusive = dateTo.Value.Date == DateTime.MaxValue.Date
-                ? DateTime.MaxValue
-                : dateTo.Value.Date.AddDays(1).AddTicks(-1);
+            throw new ArgumentException(
+                "La fecha desde no puede ser posterior a la fecha hasta");
         }
 
-        return new OrderFilterData(dateFrom, dateToInclusive, customerId, sellerId, number);
+        ValidateOptionalId(customerId, "El filtro de cliente");
+        ValidateOptionalId(sellerId, "El filtro de vendedor");
+
+        if (number.HasValue && number.Value <= 0)
+            throw new ArgumentException(
+                "El filtro de número de venta debe ser mayor que cero");
+
+        DateTime? dateToInclusive = dateTo.HasValue
+            ? ToInclusiveEndDate(dateTo.Value)
+            : null;
+
+        return new OrderFilterData(
+            dateFrom,
+            dateToInclusive,
+            customerId,
+            sellerId,
+            number);
     }
 
     private static OrderData NormalizeAndValidate(CreateOrderRequest request)
@@ -364,13 +485,15 @@ public class OrderService : IOrderService
             throw new ArgumentException("El medio de pago es obligatorio");
 
         if (request.UserId <= 0)
-            throw new ArgumentException("El usuario que registra la venta es obligatorio");
+            throw new ArgumentException(
+                "El usuario que registra la venta es obligatorio");
 
         if (request.Date == default)
             throw new ArgumentException("La fecha de la venta es obligatoria");
 
         if (request.Details is null || request.Details.Count == 0)
-            throw new ArgumentException("La venta debe contener al menos un detalle");
+            throw new ArgumentException(
+                "La venta debe contener al menos un detalle");
 
         var duplicateProductId = request.Details
             .GroupBy(detail => detail.ProductId)
@@ -379,21 +502,29 @@ public class OrderService : IOrderService
         if (duplicateProductId.HasValue)
         {
             throw new ArgumentException(
-                $"El producto con ID {duplicateProductId.Value} está repetido en los detalles de la venta");
+                $"El producto con ID {duplicateProductId.Value} " +
+                "está repetido en los detalles de la venta");
         }
 
         var details = request.Details.Select(detail =>
         {
             if (detail.ProductId <= 0)
-                throw new ArgumentException("Cada detalle debe indicar un producto válido");
+                throw new ArgumentException(
+                    "Cada detalle debe indicar un producto válido");
 
             if (detail.Quantity <= 0)
-                throw new ArgumentException("La cantidad de cada detalle debe ser mayor que cero");
+                throw new ArgumentException(
+                    "La cantidad de cada detalle debe ser mayor que cero");
 
             return new OrderDetailData(detail.ProductId, detail.Quantity);
         }).ToList();
 
-        return new OrderData(request.CustomerId, request.SellerId, request.PaymentMethodId, request.Date, details);
+        return new OrderData(
+            request.CustomerId,
+            request.SellerId,
+            request.PaymentMethodId,
+            request.Date,
+            details);
     }
 
     private static void ValidateAmount(decimal amount, string fieldName)
@@ -402,10 +533,12 @@ public class OrderService : IOrderService
             throw new ArgumentException($"{fieldName} no puede ser negativo");
 
         if (amount > MaxAmount)
-            throw new ArgumentException($"{fieldName} no puede superar los {MaxAmount:0.00}");
+            throw new ArgumentException(
+                $"{fieldName} no puede superar los {MaxAmount:0.00}");
 
         if (decimal.Round(amount, 2) != amount)
-            throw new ArgumentException($"{fieldName} no puede tener más de 2 decimales");
+            throw new ArgumentException(
+                $"{fieldName} no puede tener más de 2 decimales");
     }
 
     private sealed record OrderFilterData(DateTime? DateFrom, DateTime? DateToInclusive, int? CustomerId, int? SellerId, int? Number);

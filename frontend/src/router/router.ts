@@ -11,7 +11,7 @@ import { renderNewPurchase } from "../pages/admin/purchases/newPurchase";
 import { renderPurchaseDetail } from "../pages/admin/purchases/purchaseDetail";
 import { renderSales } from "../pages/admin/sales/sales";
 import { renderUsers } from "../pages/admin/users/users";
-import { renderReports } from "../pages/admin/reports/reports";
+import { renderReports } from "../pages/reports/reports";
 
 import { renderSellerDashboard } from "../pages/seller/dashboard/dashboard";
 import { renderSellerSales } from "../pages/seller/sales/sales";
