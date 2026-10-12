@@ -1,4 +1,3 @@
-import { getCustomers } from "../../services/customers/customerService";
 import type { Customer } from "../../services/customers/customerService";
 
 interface CustomerSearchOptions {

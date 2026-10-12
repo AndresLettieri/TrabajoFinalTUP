@@ -117,6 +117,22 @@ export interface SalesReportFilter {
     customerId?: number;
 }
 
+export interface SalesTopProductsResponse {
+    productCode: string;
+    productDescription: string;
+    categoryName: string;
+    totalQuantitySold: number;
+    totalSales: number;
+    totalProfit: number;
+}
+
+export interface SalesTopCategoriesResponse {
+    categoryName: string;
+    totalQuantitySold: number;
+    totalSales: number;
+    totalProfit: number;
+}
+
 export async function getPurchasesReport(filters: PurchasesReportFilter = {},): Promise<PurchasesReportResponse> {
     const params = new URLSearchParams();
 
@@ -220,4 +236,49 @@ export async function getSalesBySeller(
     return get<SalesReportResponse>(
         `/reports/sales/by-seller?${params.toString()}`
     );
+}
+
+export async function getTopProductsReport(filters: SalesReportFilter = {},): Promise<SalesTopProductsResponse[]> {
+    const params = new URLSearchParams();
+
+    if (filters.dateFrom) {
+        params.append("dateFrom", filters.dateFrom);
+    }
+
+    if (filters.dateTo) {
+        params.append("dateTo", filters.dateTo);
+    }
+
+    const queryString = params.toString();
+    return get<SalesTopProductsResponse[]>( `/reports/sales/top-products?${queryString}`);
+}
+
+export async function getTopCategoriesReport(filters: SalesReportFilter = {},): Promise<SalesTopCategoriesResponse[]> {
+    const params = new URLSearchParams();
+
+    if (filters.dateFrom) {
+        params.append("dateFrom", filters.dateFrom);
+    }
+
+    if (filters.dateTo) {
+        params.append("dateTo", filters.dateTo);
+    }
+
+    const queryString = params.toString();
+    return get<SalesTopCategoriesResponse[]>( `/reports/sales/top-categories?${queryString}`);
+}
+
+export async function getCategoriesProfit(filters: SalesReportFilter = {}): Promise<SalesTopCategoriesResponse[]> {
+    const params = new URLSearchParams();
+
+    if (filters.dateFrom) {
+        params.append("dateFrom", filters.dateFrom);
+    }
+
+    if (filters.dateTo) {
+        params.append("dateTo", filters.dateTo);
+    }
+
+    const queryString = params.toString();
+    return get<SalesTopCategoriesResponse[]>( `/reports/sales/profit-category?${queryString}`);
 }
