@@ -1,6 +1,7 @@
 using DistribuidoraAPI.Data;
 using DistribuidoraAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using DistribuidoraAPI.DTOs.Reports;
 
 namespace DistribuidoraAPI.Repositories.Implementations;
 
@@ -18,6 +19,46 @@ public class OrderRepository : RepositoryBase<Order>, IOrderRepository
             throw new InvalidOperationException("Se alcanzó el máximo número de comprobante permitido");
 
         return lastNumber + 1;
+    }
+
+    public async Task<IEnumerable<TopProductDto>> GetTopProductsBetweenDates(DateTime dateFrom, DateTime dateToInclusive, int topN)
+    {
+        var query = _dbSet
+            .AsNoTracking()
+            .Where(order => !order.Cancelled && order.Date >= dateFrom && order.Date <= dateToInclusive)
+            .SelectMany(order => order.Details)
+            .GroupBy(detail => detail.ProductId)
+            .Select(group => new TopProductDto
+            {
+                ProductCode = group.First().Product.Code,
+                ProductDescription = group.First().Product.Description,
+                CategoryName = group.First().Product.Category.Name,
+                TotalQuantitySold = group.Sum(detail => detail.Quantity),
+                TotalSales = group.Sum(detail => detail.Quantity * detail.SalePrice),
+                TotalProfit = group.Sum(detail => (detail.SalePrice - detail.PurchasePrice) * detail.Quantity)
+            })
+            .OrderByDescending(dto => dto.TotalQuantitySold)
+            .Take(topN);
+        return await query.ToListAsync();
+    }
+
+    public async Task<IEnumerable<TopCategoryDto>> GetTopCategoriesBetweenDates(DateTime dateFrom, DateTime dateToInclusive, int topN)
+    {
+        var query = _dbSet
+            .AsNoTracking()
+            .Where(order => !order.Cancelled && order.Date >= dateFrom && order.Date <= dateToInclusive)
+            .SelectMany(order => order.Details)
+            .GroupBy(detail => detail.Product.CategoryId)
+            .Select(group => new TopCategoryDto
+            {
+                CategoryName = group.First().Product.Category.Name,
+                TotalQuantitySold = group.Sum(detail => detail.Quantity),
+                TotalSales = group.Sum(detail => detail.Quantity * detail.SalePrice),
+                TotalProfit = group.Sum(detail => (detail.SalePrice - detail.PurchasePrice) * detail.Quantity)
+            })
+            .OrderByDescending(dto => dto.TotalQuantitySold)
+            .Take(topN);
+        return await query.ToListAsync();
     }
 
     public async Task<IEnumerable<Order>> Search(DateTime? dateFrom, DateTime? dateToInclusive, int? customerId, int? sellerId, int? number)

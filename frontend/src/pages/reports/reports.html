@@ -10,14 +10,6 @@
             <label for="report-type">Tipo de reporte</label>
             <select id="report-type">
                 <option value="">Seleccioná un reporte</option>
-                <option value="sales-period">Ventas por período</option>
-                <option value="purchases-period">Compras por período</option>
-                <option value="profit-period">Ganancias por período</option>
-                <option value="sales-customer">Ventas por cliente</option>
-                <option value="sales-seller">Ventas por vendedor</option>
-                <option value="best-selling-products">Productos más vendidos</option>
-                <option value="best-selling-categories">Categorías más vendidas</option>
-                <option value="profit-category">Ganancias por categoría</option>
             </select>
         </div>
     </section>
@@ -49,7 +41,6 @@
                 <input type="text" id="report-customer-search" placeholder="Buscar cliente por nombre..." autocomplete="off"/>
                 <input type="hidden" id="report-customer-id" />
                 <div id="report-customer-results" class="report-customer-results" hidden></div>
-                <p id="report-customer-error" class="form-error" hidden></p>
                 <p id="report-customer-selected" hidden></p>
             </div>
             <div id="report-seller-filter" class="form-group" hidden>
@@ -57,8 +48,9 @@
                 <select id="report-seller">
                     <option value="">Seleccioná un vendedor</option>
                 </select>
-                <p id="report-seller-error" class="form-error" hidden></p>
             </div>
+            <p id="report-filter-error" class="form-error" hidden></p>
+
             <div class="report-actions">
                 <button
                     type="button"

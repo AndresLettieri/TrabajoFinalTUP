@@ -290,8 +290,8 @@ public class PurchaseService : IPurchaseService
             DateTo = dateToInclusive,
             VendorId = vendorId,
             Number = number,
-            PageSize = filters.PageSize,
-            Page = filters.Page
+            PageSize = filters?.PageSize ?? 10,
+            Page = filters?.Page ?? 1
         };
     }
 
