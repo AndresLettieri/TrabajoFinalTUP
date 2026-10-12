@@ -86,4 +86,46 @@ public class ReportsController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpGet("sales/top-products")]
+    public async Task<ActionResult<List<TopProductDto>>> GetTopProductsByPeriod([FromQuery] DateTime? dateFrom, [FromQuery] DateTime? dateTo)
+    {
+        try
+        {
+            var report = await _orderService.GetTopProductsReport(dateFrom, dateTo);
+            return Ok(report);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("sales/top-categories")]
+    public async Task<ActionResult<List<TopCategoryDto>>> GetTopCategoriesByPeriod([FromQuery] DateTime? dateFrom, [FromQuery] DateTime? dateTo)
+    {
+        try
+        {
+            var report = await _orderService.GetTopCategoriesReport(dateFrom, dateTo);
+            return Ok(report);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("sales/profit-category")]
+    public async Task<ActionResult<List<TopCategoryDto>>> GetProfitByCategory([FromQuery] DateTime? dateFrom, [FromQuery] DateTime? dateTo)
+    {
+        try
+        {
+            var report = await _orderService.GetProfitByCategory(dateFrom, dateTo);
+            return Ok(report);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }
