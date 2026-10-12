@@ -1,6 +1,6 @@
-import { getSalesBySeller } from "../../../../services/reports/reportService";
-import type { OrderReport } from "../../../../services/reports/reportService";
-import type { ReportDefinition } from "../../../../utils/reportsCore/report.types";
+import { getSalesBySeller } from "../../../../../services/reports/reportService";
+import type { OrderReport } from "../../../../../services/reports/reportService";
+import type { ReportDefinition } from "../../../../../utils/reportsCore/report.types";
 
 const salesSellerReport: ReportDefinition<OrderReport> = {
     id: "sales-seller",

@@ -1,5 +1,5 @@
-import { getSalesReport } from "../../../../services/reports/reportService";
-import type { ReportDefinition } from "../../../../utils/reportsCore/report.types";
+import { getSalesReport } from "../../../../../services/reports/reportService";
+import type { ReportDefinition } from "../../../../../utils/reportsCore/report.types";
 
 interface SalesPeriodRow {
   number: number;

@@ -4,17 +4,16 @@ import { renderAdminDashboard } from "../pages/admin/dashboard/dashboard";
 import { renderProducts } from "../pages/admin/products/products";
 import { renderCategories } from "../pages/admin/categories/categories";
 import { renderBrands } from "../pages/admin/brands/brands";
-import { renderCustomers } from "../pages/customers/customers";
+import { renderCustomers } from "../pages/shared/customers/customers";
 import { renderVendors } from "../pages/admin/vendors/vendors";
 import { renderPurchases } from "../pages/admin/purchases/purchases";
 import { renderNewPurchase } from "../pages/admin/purchases/newPurchase";
 import { renderPurchaseDetail } from "../pages/admin/purchases/purchaseDetail";
-import { renderSales } from "../pages/admin/sales/sales";
+import { renderSales } from "../pages/shared/sales/sales";
 import { renderUsers } from "../pages/admin/users/users";
-import { renderReports } from "../pages/reports/reports";
+import { renderReports } from "../pages/shared/reports/reports";
 
 import { renderSellerDashboard } from "../pages/seller/dashboard/dashboard";
-import { renderSellerSales } from "../pages/seller/sales/sales";
 
 import { renderNotFound } from "../pages/notFound/notFound";
 
@@ -100,7 +99,7 @@ const routes: Record<string, Route> = {
     },
 
     "/seller/sales": {
-    render: renderSellerSales,
+    render: renderSales,
     roles: ["Seller"],
     },
     "/seller/customers": {

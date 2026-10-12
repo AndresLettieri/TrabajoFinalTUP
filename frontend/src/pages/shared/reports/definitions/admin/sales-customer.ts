@@ -1,5 +1,5 @@
-import { getSalesByCustomer, type OrderReport} from "../../../../services/reports/reportService";
-import type { ReportDefinition } from "../../../../utils/reportsCore/report.types";
+import { getSalesByCustomer, type OrderReport} from "../../../../../services/reports/reportService";
+import type { ReportDefinition } from "../../../../../utils/reportsCore/report.types";
 
 type SalesCustomerRow = OrderReport;
 

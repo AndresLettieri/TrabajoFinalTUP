@@ -1,5 +1,5 @@
-import {getPurchasesReport, type PurchaseReport} from "../../../../services/reports/reportService";
-import type { ReportDefinition } from "../../../../utils/reportsCore/report.types";
+import {getPurchasesReport, type PurchaseReport} from "../../../../../services/reports/reportService";
+import type { ReportDefinition } from "../../../../../utils/reportsCore/report.types";
 
 const purchasesPeriodReport: ReportDefinition<PurchaseReport> = {
     id: "purchases-period",

@@ -1,6 +1,6 @@
-import { getCategoriesProfit } from "../../../../services/reports/reportService";
-import type { SalesTopCategoriesResponse } from "../../../../services/reports/reportService";
-import type { ReportDefinition } from "../../../../utils/reportsCore/report.types";
+import { getCategoriesProfit } from "../../../../../services/reports/reportService";
+import type { SalesTopCategoriesResponse } from "../../../../../services/reports/reportService";
+import type { ReportDefinition } from "../../../../../utils/reportsCore/report.types";
 
 const profitCategoryReport: ReportDefinition<SalesTopCategoriesResponse> = {
     id: "profit-category",
