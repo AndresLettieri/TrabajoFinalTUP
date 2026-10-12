@@ -7,7 +7,7 @@ const user = getCurrentUser();
 
 function loadReportModules(): Record<string, ReportModule> {
     const commonReports = import.meta.glob<ReportModule>(
-        "../../pages/reports/definitions/common/*.ts",
+        "../../pages/shared/reports/definitions/common/*.ts",
         { eager: true },
     );
 
@@ -16,14 +16,14 @@ function loadReportModules(): Record<string, ReportModule> {
     switch (user?.role) {
         case "Admin":
             roleReports = import.meta.glob<ReportModule>(
-                "../../pages/reports/definitions/admin/*.ts",
+                "../../pages/shared/reports/definitions/admin/*.ts",
                 { eager: true },
             );
             break;
 
         case "Seller":
             roleReports = import.meta.glob<ReportModule>(
-                "../../pages/reports/definitions/seller/*.ts",
+                "../../pages/shared/reports/definitions/seller/*.ts",
                 { eager: true },
             );
             break;
