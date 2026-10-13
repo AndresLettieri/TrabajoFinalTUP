@@ -28,4 +28,18 @@ public class DashboardController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpGet("seller")]
+    public async Task<ActionResult<SellerDashboardResponseDto>> GetSellerDashboard([FromQuery] int userId, [FromQuery] DateTime? dateFrom, [FromQuery] DateTime? dateTo)
+    {
+        try
+        {
+            var dashboard = await _dashboardService.GetSellerDashboard(userId, dateFrom, dateTo);
+            return Ok(dashboard);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }
