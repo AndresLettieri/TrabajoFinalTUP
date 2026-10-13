@@ -1,6 +1,5 @@
 namespace DistribuidoraAPI.DTOs.Order;
-
-public class OrderFilterRequest
+public class OrderFilterRequest : PaginationRequestDto
 {
     public DateTime? DateFrom { get; set; }
     public DateTime? DateTo { get; set; }

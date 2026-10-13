@@ -1,7 +1,9 @@
 using DistribuidoraAPI.Data;
+using DistribuidoraAPI.DTOs;
+using DistribuidoraAPI.DTOs.Order;
+using DistribuidoraAPI.DTOs.Reports;
 using DistribuidoraAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using DistribuidoraAPI.DTOs.Reports;
 
 namespace DistribuidoraAPI.Repositories.Implementations;
 
@@ -59,6 +61,47 @@ public class OrderRepository : RepositoryBase<Order>, IOrderRepository
             .OrderByDescending(dto => dto.TotalQuantitySold)
             .Take(topN);
         return await query.ToListAsync();
+    }
+
+    public async Task<PagedResultDto<Order>> GetFilteredOrders(OrderFilterRequest filter)
+    {
+        var query = _dbSet
+           .AsNoTracking()
+           .Include(p => p.Customer)
+           .Include(p => p.User)
+           .Include(p => p.PaymentMethod)
+           .Include(p => p.Details)
+               .ThenInclude(d => d.Product)
+           .AsQueryable();
+
+        if (filter.DateFrom.HasValue)
+            query = query.Where(p => p.Date >= filter.DateFrom.Value);
+
+        if (filter.DateTo.HasValue)
+            query = query.Where(p => p.Date <= filter.DateTo.Value);
+
+        if (filter.CustomerId.HasValue)
+            query = query.Where(p => p.CustomerId == filter.CustomerId.Value);
+
+        if (filter.SellerId.HasValue)
+            query = query.Where(p => p.UserId == filter.SellerId.Value);
+
+        if (filter.Number.HasValue)
+            query = query.Where(p => p.Number == filter.Number.Value);
+        var totalItems = await query.CountAsync();
+        var orders = await query
+            .OrderBy(p => p.Date)
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToListAsync();
+        return new PagedResultDto<Order>
+        {
+            Items = orders,
+            TotalItems = totalItems,
+            Page = filter.Page,
+            PageSize = filter.PageSize,
+            TotalPages = (int)Math.Ceiling((double)totalItems / filter.PageSize)
+        };
     }
 
     public async Task<IEnumerable<Order>> Search(DateTime? dateFrom, DateTime? dateToInclusive, int? customerId, int? sellerId, int? number)
