@@ -16,6 +16,16 @@ export interface Dashboard {
   lowStockProducts: Product[];
 }
 
+export interface SellerDashboard {
+  today: string;
+  salesTodayCount: number;
+  salesTodayAmount: number;
+  periodDateFrom: string;
+  periodDateTo: string;
+  customersTodayCount: number;
+  salesInPeriodCount: number;
+}
+
 export interface DashboardFilters {
   userId: number;
   dateFrom?: string;
@@ -33,5 +43,18 @@ export async function getAdminDashboard(filters: DashboardFilters): Promise<Dash
   }
   return get<Dashboard>(
     `/dashboard/admin?${params.toString()}`);
+}
+
+export async function getSellerDashboard(filters: DashboardFilters): Promise<SellerDashboard> {
+  const params = new URLSearchParams();
+  params.set("userId", String(filters.userId));
+  if (filters.dateFrom) {
+    params.set("dateFrom", filters.dateFrom);
+  }
+  if (filters.dateTo) {
+    params.set("dateTo", filters.dateTo);
+  }
+  return get<SellerDashboard>(
+    `/dashboard/seller?${params.toString()}`);
 }
 
