@@ -10,6 +10,8 @@ import { renderPurchases } from "../pages/admin/purchases/purchases";
 import { renderNewPurchase } from "../pages/admin/purchases/newPurchase";
 import { renderPurchaseDetail } from "../pages/admin/purchases/purchaseDetail";
 import { renderSales } from "../pages/shared/sales/sales";
+import { renderNewSale } from "../pages/shared/sales/newSale";
+import { renderSaleDetail } from "../pages/shared/sales/saleDetail";
 import { renderUsers } from "../pages/admin/users/users";
 import { renderReports } from "../pages/shared/reports/reports";
 
@@ -77,8 +79,19 @@ const routes: Record<string, Route> = {
     render: renderPurchaseDetail,
     roles: ["Admin"],
     },
+
     "/admin/sales": {
     render: renderSales,
+    roles: ["Admin"],
+    },
+
+    "/admin/sales/create": {
+    render: renderNewSale,
+    roles: ["Admin"],
+    },
+
+    "/admin/sales/{id}": {
+    render: renderSaleDetail,
     roles: ["Admin"],
     },
 
@@ -92,7 +105,6 @@ const routes: Record<string, Route> = {
     roles: ["Admin"],
     },
 
-
     "/seller/dashboard": {
     render: renderSellerDashboard,
     roles: ["Seller"],
@@ -102,6 +114,17 @@ const routes: Record<string, Route> = {
     render: renderSales,
     roles: ["Seller"],
     },
+
+    "/seller/sales/create": {
+    render: renderNewSale,
+    roles: ["Seller"],
+    },
+
+    "/seller/sales/{id}": {
+    render: renderSaleDetail,
+    roles: ["Seller"],
+    },
+
     "/seller/customers": {
     render: renderCustomers,
     roles: ["Seller"],
@@ -117,9 +140,11 @@ export function router(): void {
 
     const route =
         routes[path] ??
-        (purchaseDetailMatch ? routes["/admin/purchases/{id}"] : undefined);
+        (purchaseDetailMatch ? routes["/admin/purchases/{id}"] : undefined) ??
+        (path.match(/^\/admin\/sales\/(\d+)$/) ? routes["/admin/sales/{id}"] : undefined) ??
+        (path.match(/^\/seller\/sales\/(\d+)$/) ? routes["/seller/sales/{id}"] : undefined);
 
-    // Ruta inexistente
+        // Ruta inexistente
     if (!route) {
         renderNotFound();
         return;

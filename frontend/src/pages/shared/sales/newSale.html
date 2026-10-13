@@ -1,0 +1,79 @@
+<section class="page-container">
+    <div class="page-header">
+    </div>
+
+    <!-- Datos de la venta -->
+    <section class="form-section form-order">
+        <h2>Datos de la venta</h2>
+        <div class="sales-form-row">
+            <div class="sales-form-field">
+                <label for="sales-customer-search">Cliente</label>
+                <input type="search" id="sales-customer-search" placeholder="Buscar cliente por nombre..." autocomplete="off"/>
+                <input type="hidden" id="sales-customer-id"/>
+                <div id="sales-customer-results" class="report-customer-results" hidden></div>
+                <p id="sales-customer-selected" class="report-customer-selected" hidden></p>
+                <p id="sales-customer-error" class="error-message" role="alert"></p>
+            </div>
+            <div class="sales-form-field">
+                <label for="sales-payment-method">Forma de pago</label>
+                <select id="sales-payment-method" required>
+                    <option value="">Seleccionar forma de pago</option>
+                </select>
+            </div>
+            <div id="sales-seller-container" class="sales-form-field" hidden>
+                <label for="sales-seller">Vendedor</label>
+                <select id="sales-seller" required>
+                    <option value="">Seleccioná un vendedor</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Productos de la venta -->
+    <section class="form-section form-order">
+        <div class="page-header">
+            <h2>Productos</h2>
+            <div class="sales-products-actions">
+                <button type="button" id="sales-add-product" class="btn btn-primary">Agregar productos</button>
+            </div>
+        </div>
+        
+        <p id="sales-products-error" class="error-message" role="alert"></p>
+        
+        <div class="crud-table-container">
+            <table class="crud-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio unitario</th>
+                        <th>Subtotal</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="sales-products">
+                    <tr id="sales-products-empty">
+                        <td colspan="6">
+                            Todavía no agregaste productos a la venta.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Total y confirmación -->
+    <section class="form-section">
+        <div class="sales-summary">
+            <span>Total de la venta</span>
+            <strong id="sales-total" class="sales-total-value">$ 0,00</strong>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" id="sales-cancel" class="btn btn-secondary">Cancelar</button>
+            <button type="button" id="sales-confirm" class="btn btn-primary">Confirmar venta</button>
+        </div>
+    </section>
+</section>

@@ -1,6 +1,8 @@
 using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Order;
+using DistribuidoraAPI.DTOs.Purchase;
 using DistribuidoraAPI.Services;
+using DistribuidoraAPI.Services.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DistribuidoraAPI.Controllers;
@@ -21,13 +23,21 @@ public class OrderController : ControllerBase
     {
         try
         {
-            var orders = await _orderService.GetAll(filters);
+            var orders = await _orderService.GetAll();
             return Ok(orders);
         }
         catch (ArgumentException ex)
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+
+    [HttpGet("getByFilter")]
+    public async Task<ActionResult<PagedResultDto<OrderResponseDto>>> GetByFilter([FromQuery] OrderFilterRequest filter)
+    {
+        var purchases = await _orderService.GetByFilter(filter);
+        return Ok(purchases);
     }
 
     [HttpGet("{id:int}")]
