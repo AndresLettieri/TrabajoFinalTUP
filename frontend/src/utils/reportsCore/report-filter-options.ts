@@ -3,6 +3,7 @@ import { getUser } from "../../services/users/userService";
 import {getCustomers,type Customer} from "../../services/customers/customerService";
 import { populateSelect } from "../../utils/selectOptions";
 import { initCustomerSearch } from "../../components/customerSearch/customerSearch";
+import { getCurrentUser } from "../../services/auth/authSession";
 import type { ReportFilterType } from "./report.types";
 
 let customers: Customer[] = [];
@@ -36,6 +37,15 @@ async function loadSellers(): Promise<void> {
 
     if (!select || select.length > 1) 
         return;
+
+    const currentUser = getCurrentUser()!;
+
+    if (currentUser.role === "Seller") {
+        select.add(new Option(currentUser.name, String(currentUser.id)));
+        select.value = String(currentUser.id);
+        select.disabled = true;
+        return;
+    }
     
     const sellers = (await getUser()).filter(
         (user) => user.role === "Seller",

@@ -129,6 +129,10 @@ const routes: Record<string, Route> = {
     render: renderCustomers,
     roles: ["Seller"],
     },
+    "/seller/reports": {
+    render: renderReports,
+    roles: ["Seller"],
+    },
 };
 
 export function router(): void {

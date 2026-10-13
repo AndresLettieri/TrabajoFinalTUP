@@ -36,6 +36,9 @@ export function renderReports(): void {
     const customerIdInput = document.querySelector<HTMLInputElement>("#report-customer-id");
     const customerResults = document.querySelector<HTMLDivElement>("#report-customer-results");
     const customerSelected = document.querySelector<HTMLParagraphElement>("#report-customer-selected");
+    const vendorFilter = document.querySelector<HTMLDivElement>("#report-vendor-filter");
+    const sellerFilter = document.querySelector<HTMLDivElement>("#report-seller-filter");
+
 
 
     if (!reportTypeSelect || !reportContent) 
@@ -197,14 +200,11 @@ export function renderReports(): void {
             title.textContent = report.title;
 
         renderReportFilters(report.filters, {
-            vendorFilter: document.querySelector<HTMLDivElement>(
-                "#report-vendor-filter",
-            )!,
+            vendorFilter: vendorFilter!,
             customerFilter: customerFilter!,
-            sellerFilter: document.querySelector<HTMLDivElement>(
-                "#report-seller-filter",
-            )!,
+            sellerFilter: sellerFilter!,
         });
+
 
         return true;
     }

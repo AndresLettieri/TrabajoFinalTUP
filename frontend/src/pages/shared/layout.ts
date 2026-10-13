@@ -138,6 +138,12 @@ function setSidebarMenu(user: User): void {
         <span>Ventas</span>
       </a>
     </li>
+    <li>
+        <a href="/seller/reports" data-link>
+        <span class="sidebar-icon">📈</span>
+        <span>Reportes</span>
+        </a>
+    </li>
   `;
 }
 
