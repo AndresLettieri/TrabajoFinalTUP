@@ -1,3 +1,48 @@
-<section class="page">
-    <h2>Ventas</h2>
+<section class="crud-page">
+
+    <div class="crud-header">
+        <div>
+            <h2>Ventas</h2>
+        </div>
+
+        <button id="new-sale-button" class="btn btn-primary" type="button">
+            <span>＋ Nueva venta</span>
+        </button>
+    </div>
+
+    <section class="crud-filters"> 
+        <div class="crud-filter">
+            <label for="sale-search">Numero</label>
+            <input type="search" id="sale-search" placeholder="Buscar por número..."/>
+        </div>
+        <div class="crud-filter">
+            <label for="sale-date-from">Fecha desde</label>
+            <input type="date" id="sale-date-from" />
+        </div>
+        <div class="crud-filter">
+            <label for="sale-date-to">Fecha hasta</label>
+            <input type="date" id="sale-date-to" />
+        </div>
+        <div class="crud-filter">
+            <label for="sales-customer-search">Cliente</label>
+            <input type="search" id="sales-customer-search" placeholder="Buscar cliente por nombre..." autocomplete="off"/>
+            <input type="hidden" id="sales-customer-id"/>
+            <div id="sales-customer-results" class="report-customer-results" hidden></div>
+            <p id="sales-customer-selected" class="report-customer-selected" hidden></p>
+            <p id="sales-customer-error" class="error-message" role="alert"></p>
+        </div>
+        <div id="sales-seller-container" class="crud-filter" hidden>
+            <label for="sales-seller">Vendedor</label>
+            <select id="sales-seller" required>
+                <option value="">Seleccioná un vendedor</option>
+            </select>
+        </div>
+        <div class="crud-filter crud-filter-button">
+            <span class="crud-filter-spacer"></span>
+            <button id="search-sales" class="btn btn-primary" type="button">Buscar</button>
+        </div>
+    </section>
+
+    <section class="crud-table-container" id="sales-crud">   </section>
+
 </section>

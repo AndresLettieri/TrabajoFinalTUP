@@ -1,9 +1,11 @@
-using System.Data;
+using DistribuidoraAPI.DTOs;
 using DistribuidoraAPI.DTOs.Order;
+using DistribuidoraAPI.DTOs.Purchase;
 using DistribuidoraAPI.DTOs.Reports;
 using DistribuidoraAPI.Enums;
 using DistribuidoraAPI.Models;
 using DistribuidoraAPI.Repositories;
+using System.Data;
 
 namespace DistribuidoraAPI.Services.Implementations;
 
@@ -20,19 +22,26 @@ public class OrderService : IOrderService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<OrderResponseDto>> GetAll(OrderFilterRequest? filters = null)
+    public async Task<IEnumerable<OrderResponseDto>> GetAll()
     {
-        var normalizedFilters = NormalizeFilters(filters);
-
-        var orders = await _unitOfWork.Orders.Search(
-            normalizedFilters.DateFrom,
-            normalizedFilters.DateToInclusive,
-            normalizedFilters.CustomerId,
-            normalizedFilters.SellerId,
-            normalizedFilters.Number);
-
+        var orders = await _unitOfWork.Orders.GetAllAsync();
         return orders.Select(Map).ToList();
     }
+
+    public async Task<PagedResultDto<OrderResponseDto>> GetByFilter(OrderFilterRequest filters)
+    {
+        var normalizedFilters = NormalizeFilters(filters);
+        var orders = await _unitOfWork.Orders.GetFilteredOrders(normalizedFilters);
+        return new PagedResultDto<OrderResponseDto>
+        {
+            Items = orders.Items.Select(Map).ToList(),
+            TotalItems = orders.TotalItems,
+            Page = orders.Page,
+            PageSize = orders.PageSize,
+            TotalPages = orders.TotalPages
+        };
+    }
+
 
     public async Task<SalesReportResponseDto> GetSalesReport(DateTime? dateFrom, DateTime? dateTo, int? customerId = null, int? sellerId = null)
     {
@@ -439,7 +448,7 @@ public class OrderService : IOrderService
                 $"El número de {entityName} a mostrar debe ser mayor que cero");
     }
 
-    private static OrderFilterData NormalizeFilters(OrderFilterRequest? filters)
+    private static OrderFilterRequest NormalizeFilters(OrderFilterRequest? filters)
     {
         var dateFrom = filters?.DateFrom;
         var dateTo = filters?.DateTo;
@@ -465,12 +474,20 @@ public class OrderService : IOrderService
             ? ToInclusiveEndDate(dateTo.Value)
             : null;
 
-        return new OrderFilterData(
-            dateFrom,
-            dateToInclusive,
-            customerId,
-            sellerId,
-            number);
+        //Si filtra por numero no contemplo fechas ingresadas.
+        if (number.HasValue) {
+            dateFrom = null;
+            dateToInclusive = null;
+        }
+
+        return new OrderFilterRequest
+        {
+            DateFrom = dateFrom,
+            DateTo = dateToInclusive,
+            CustomerId = customerId,
+            SellerId = sellerId,
+            Number = number
+        };
     }
 
     private static OrderData NormalizeAndValidate(CreateOrderRequest request)
@@ -541,7 +558,6 @@ public class OrderService : IOrderService
                 $"{fieldName} no puede tener más de 2 decimales");
     }
 
-    private sealed record OrderFilterData(DateTime? DateFrom, DateTime? DateToInclusive, int? CustomerId, int? SellerId, int? Number);
     private sealed record OrderData(int CustomerId, int SellerId, int PaymentMethodId, DateTime Date, List<OrderDetailData> Details);
     private sealed record OrderDetailData(int ProductId, int Quantity);
 }

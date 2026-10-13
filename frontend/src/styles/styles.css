@@ -1665,3 +1665,72 @@ body.modal-open {
         white-space: nowrap;
     }
 }
+
+
+/* ===============
+    Orders 
+================ */
+
+.sales-form-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(180px, 1fr) minmax(180px, 1fr);
+    gap: 1rem;
+    align-items: start;
+    margin-bottom: 1.5rem;
+}
+
+.form-order h2{
+    text-align: left;
+    border-bottom: 2px solid var(--color-borde);
+
+}
+
+.sales-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.error-message {
+    color: var(--color-error, #dc3545);
+    display: block;
+    font-weight: 700;
+}
+
+.sales-form-field input,
+.sales-form-field select {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--color-texto);
+    background-color: var(--color-blanco);
+    border: 1px solid var(--color-borde);
+      border-radius: 6px;
+}
+
+
+
+.sales-products-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.sales-total-value {
+    color: #198754;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+
+
+@media (max-width: 768px) {
+    .sales-form-row {
+        grid-template-columns: 1fr;
+    }
+}
