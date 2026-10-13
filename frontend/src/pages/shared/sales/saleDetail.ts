@@ -45,6 +45,7 @@ async function loadSaleDetail(id: number): Promise<void> {
 
         setText("#sale-detail-number", String(sale.number));
         setText("#sale-detail-date", formatDate(sale.date));
+        setText("#sale-detail-payment-method", sale.paymentMethodName);
         setText("#sale-detail-vendor", sale.sellerName);
         setText("#sale-detail-customer", sale.customerName);
 
