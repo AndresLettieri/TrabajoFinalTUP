@@ -61,4 +61,44 @@ public class DashboardService : IDashboardService
             LowStockProducts = lowStockProducts
         };
     }
+
+    public async Task<SellerDashboardResponseDto> GetSellerDashboard(int userId, DateTime? dateFrom, DateTime? dateTo)
+    {
+        var usuario = await _userService.GetById(userId);
+        if (usuario == null)
+            throw new ArgumentException("Usuario no encontrado");
+
+        if (usuario.Role != Role.Seller)
+            throw new UnauthorizedAccessException("El usuario no tiene permisos de vendedor");
+
+        if (usuario.Active == false)
+            throw new UnauthorizedAccessException("El usuario no está activo");
+
+        if (dateFrom.HasValue != dateTo.HasValue)
+            throw new ArgumentException("Debe indicar ambas fechas del período o ninguna");
+
+        var today = DateTime.Today;
+        var startDate = dateFrom?.Date ?? new DateTime(today.Year, today.Month, 1);
+        var endDate = dateTo?.Date ?? today;
+        if (startDate > endDate)
+            throw new ArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
+
+        var salesToday = await _orderService.GetSalesReport(today, today, null, userId);
+        var salesInPeriod = await _orderService.GetSalesReport(startDate, endDate,null,userId);
+
+
+        return new SellerDashboardResponseDto
+        {
+            Today = today,
+            SalesTodayCount = salesToday.SalesCount,
+            SalesTodayAmount = salesToday.TotalAmount,
+            PeriodDateFrom = startDate,
+            PeriodDateTo = endDate,
+            SalesInPeriodCount = salesInPeriod.SalesCount,
+            CustomersTodayCount = salesToday.Sales
+                .Select(c => c.CustomerId)
+                .Distinct()
+                .Count()
+        };
+    }
 }
