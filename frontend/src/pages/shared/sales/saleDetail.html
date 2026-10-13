@@ -1,0 +1,71 @@
+
+<section class="crud-page">
+    <div class="crud-header purchase-detail-header">
+        <div class="purchase-detail-heading">
+            <h2>Detalle de venta</h2>
+            <span id="sale-detail-status-badge" class="purchase-status-badge">Cargando...</span>
+            <p id="sale-detail-subtitle">Información de la venta registrada</p>
+        </div>
+
+        <button type="button" id="back-to-sales" class="btn btn-secondary">Volver al listado</button>
+    </div>
+
+    <section class="form-section">
+        <h3>Datos de la venta</h3>
+
+        <div class="form-grid-three">
+            <div class="form-group-double">
+                <label>Número de comprobante</label>
+                <p id="sale-detail-number" class="detail-value">-</p>
+            </div>
+
+            <div class="form-group-double">
+                <label>Fecha</label>
+                <p id="sale-detail-date" class="detail-value">-</p>
+            </div>
+
+            <div class="form-group-double">
+                <label>Cliente</label>
+                <p id="sale-detail-customer" class="detail-value">-</p>
+            </div>
+
+            <div class="form-group-double">
+                <label>Vendedor</label>
+                <p id="sale-detail-vendor" class="detail-value">-</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Productos -->
+    <section class="form-section">
+        <h3>Productos de la venta</h3>
+
+        <div
+            class="crud-table-container"
+            id="sale-detail-table-container"
+        >
+            <table class="crud-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio de venta</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+
+                <tbody id="sale-detail-items">
+                    <!-- Los productos se cargan desde TypeScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="purchase-total">
+            <span>Total de la venta:</span>
+            <strong id="sale-detail-total">$ 0,00</strong>
+        </div>
+    </section>
+
+
+</section>
