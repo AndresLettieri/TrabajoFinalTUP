@@ -8,6 +8,170 @@
 
 ---
 
+# Instalación y configuración
+
+Esta sección describe los pasos necesarios para configurar y ejecutar el sistema de gestión de la distribuidora en un entorno local.
+
+## 1. Requisitos previos
+
+Antes de comenzar, es necesario contar con las siguientes herramientas:
+
+- [.NET SDK 10](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Node.js](https://nodejs.org/) y npm.
+- [MySQL Server](https://dev.mysql.com/downloads/mysql/)
+- Un cliente para administrar MySQL, como MySQL Workbench.
+- Git.
+
+## 2. Clonar el repositorio
+
+Clonar el repositorio:
+
+```bash
+git clone https://github.com/AndresLettieri/TrabajoFinalTUP
+```
+
+
+## 3. Configuración de la base de datos
+
+El sistema utiliza MySQL como motor de base de datos.
+
+1. Iniciar el servidor MySQL.
+2. Abrir el cliente de administración de bases de datos.
+3. Crear la base de datos `distribuidora`.
+4. Ejecutar los scripts SQL incluidos en el repositorio, respetando el orden indicado en la documentación.
+5. Verificar que se hayan creado correctamente las tablas y los datos iniciales necesarios para utilizar el sistema.
+
+## 3. Configuración de la base de datos
+
+El sistema utiliza MySQL como motor de base de datos. Los scripts necesarios para crear y configurar la base se encuentran en `database/scripts/`.
+
+### 3.1. Crear la base de datos y las tablas
+
+Abrir MySQL Workbench o el cliente de MySQL que se utilice y ejecutar los siguientes scripts, respetando el orden:
+
+| Orden | Script | Descripción |
+|---|---|---|
+| 1 | `01_create_database.sql` | Crea la base de datos `distribuidora`. |
+| 2 | `02_create_tables.sql` | Crea las tablas del sistema. |
+| 3 | `03_seed_data.sql` | Inserta los datos iniciales necesarios para el funcionamiento de la aplicación. |
+| 4 | `04_additional_indexes.sql` | Crea índices adicionales para optimizar las consultas. |
+
+Los scripts deben ejecutarse una sola vez sobre una base de datos nueva.
+
+### 3.2. Cargar datos de prueba (opcional)
+
+El repositorio incluye un script adicional:
+
+- `05_inserts dummy.sql`: incorpora registros de prueba para facilitar las pruebas y demostraciones del sistema.
+
+Este script es opcional y está destinado exclusivamente a entornos de desarrollo y pruebas. **No debe ejecutarse en entornos productivos.**
+
+### 3.3. Verificar la instalación
+
+Una vez ejecutados los scripts:
+
+1. Verificar que exista la base de datos `distribuidora`.
+2. Comprobar que se hayan creado las tablas correspondientes.
+3. Verificar que se hayan insertado los datos iniciales.
+4. Confirmar que MySQL se encuentre activo y disponible para recibir conexiones.
+
+Una vez completados estos pasos, se puede continuar con la configuración del backend.
+
+## 4. Instalación y configuración del backend
+
+El backend está desarrollado con C# y ASP.NET Core Web API sobre .NET 10, utilizando Entity Framework Core 9 y Pomelo para la conexión con MySQL.
+
+### 4.1. Configurar la conexión a la base de datos
+
+Ingresar a la carpeta del backend:
+
+```bash
+cd backend/DistribuidoraAPI
+```
+
+Configurar la cadena de conexión en `appsettings.json` o mediante la configuración de entorno correspondiente:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Port=3306;Database=distribuidora;User=TU_USUARIO;Password=TU_PASSWORD;"
+  }
+}
+```
+
+Reemplazar `TU_USUARIO` y `TU_PASSWORD` por las credenciales locales de MySQL.
+
+### 4.2. Restaurar dependencias
+
+```bash
+dotnet restore
+```
+
+### 4.3. Compilar el proyecto
+
+```bash
+dotnet build
+```
+
+### 4.4. Ejecutar el backend
+
+```bash
+dotnet run
+```
+
+La API quedará disponible en la dirección indicada por la consola al iniciar la aplicación. La documentación de los endpoints puede consultarse mediante Swagger/OpenAPI, si está habilitada en ese entorno.
+
+## 5. Instalación y configuración del frontend
+
+El frontend está desarrollado con TypeScript y Vite.
+
+Abrir una terminal e ingresar a la carpeta del frontend:
+
+```bash
+cd frontend
+```
+
+### 5.1. Instalar dependencias
+
+```bash
+npm install
+```
+
+### 5.2. Configurar la conexión con la API
+
+Verificar la configuración de la URL base utilizada por el frontend para comunicarse con el backend. Si se utiliza un archivo de variables de entorno, configurarlo con la dirección local de la API.
+
+### 5.3. Ejecutar el frontend
+
+```bash
+npm run dev
+```
+
+Vite mostrará en la consola la dirección local desde la cual se puede acceder a la aplicación.
+
+### 5.4. Generar la versión de producción
+
+Para compilar el frontend:
+
+```bash
+npm run build
+```
+
+Los archivos generados quedarán disponibles en la carpeta de salida configurada por Vite.
+
+## 6. Ejecución del sistema
+
+Para utilizar el sistema localmente:
+
+1. Verificar que MySQL esté iniciado y que la base de datos esté configurada.
+2. Ejecutar el backend.
+3. Ejecutar el frontend.
+4. Abrir en el navegador la dirección local indicada por Vite.
+
+Es necesario mantener ejecutándose tanto el backend como el frontend mientras se utiliza la aplicación.
+
+---
+
 # 1. Introducción
 
 ## Problemática actual
