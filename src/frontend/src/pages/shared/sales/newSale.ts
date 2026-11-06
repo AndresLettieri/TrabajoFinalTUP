@@ -17,14 +17,19 @@ interface SalesProduct {
 }
 
 
-const currentUser = getCurrentUser();
+
 let selectedProducts: SalesProduct[] = [];
 let customers: Customer[] = [];
 let paymentMethods: PaymentMethod[] = [];
 let users: User[] = [];
 
+
+function getLoggedUser() {
+    return getCurrentUser();
+}
+
+
 export async function renderNewSale(): Promise<void> {
-    console.log("Rendering new sale page");
     renderLayout(saleHtml);
 
     selectedProducts = [];
@@ -53,13 +58,13 @@ async function loadSalesSellers(): Promise<void> {
 
 
 
-    if (!currentUser) 
+    if (!getLoggedUser()) 
         throw new Error("No se encontró el usuario de la sesión.");
     
 
-    if (currentUser.role === "Seller") {
-        select.add(new Option(currentUser.name, String(currentUser.id)));
-        select.value = String(currentUser.id);
+    if (getLoggedUser()?.role === "Seller") {
+        select.add(new Option(getLoggedUser()!.name, String(getLoggedUser()!.id)));
+        select.value = String(getLoggedUser()!.id);
         select.disabled = true;
         return;
     }
@@ -73,7 +78,7 @@ async function loadSalesSellers(): Promise<void> {
         select.add(new Option(seller.name, String(seller.id)));
     }
 
-    if (currentUser.role === "Admin") 
+    if (getLoggedUser()?.role === "Admin") 
         select.value = "";
     
 }
@@ -103,7 +108,7 @@ function initializeSalesEvents(): void {
     const backButton = document.querySelector<HTMLButtonElement>("#sales-cancel");
     if (backButton) 
         backButton.addEventListener("click", () => {
-            if (currentUser?.role !== "Admin") {
+            if (getLoggedUser()?.role !== "Admin") {
                 navigate("/seller/sales");
             } else {
                 navigate("/admin/sales");
@@ -365,7 +370,7 @@ async function confirmSale(): Promise<void> {
     const customerId = Number(customerIdInput.value);
     const paymentMethodId = Number(paymentMethodSelect.value);
 
-    if (!currentUser) {
+    if (!getLoggedUser()) {
         alert("No se encontró el usuario de la sesión.");
         return;
     }
@@ -380,9 +385,9 @@ async function confirmSale(): Promise<void> {
         return;
     }
 
-    let sellerId = currentUser.id;
+    let sellerId = getLoggedUser()!.id;
 
-    if (currentUser.role === "Admin") {
+    if (getLoggedUser()?.role === "Admin") {
         if (!sellerSelect || !sellerSelect.value) {
             alert("Seleccioná el usuario al que se atribuirá la venta.");
             return;

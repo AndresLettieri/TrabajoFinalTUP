@@ -16,12 +16,15 @@ import { getCurrentUser } from "../../../services/auth/authSession";
 
 
 const pagination = createPaginationState<Order>();
-const currentUser = getCurrentUser();
 let currentSortColumn: keyof Order | null = null;
 let currentSortDirection: "asc" | "desc" | null = null;
 let customers: Customer[] = [];
 
-    
+
+function getLoggedUser() {
+    return getCurrentUser();
+}
+
 export function renderSales(): void {
     renderLayout(salesHtml);
 
@@ -45,9 +48,8 @@ export function renderSales(): void {
     });
 
     const addSaleButton = document.querySelector<HTMLButtonElement>("#new-sale-button");
-
     addSaleButton?.addEventListener("click", () => {
-        if (currentUser?.role !== "Admin") {
+        if (getLoggedUser()?.role !== "Admin") {
             navigate("/seller/sales/create");
         } else {
             navigate("/admin/sales/create");
@@ -80,10 +82,10 @@ async function loadSalesFormOptions(): Promise<void> {
     }
 
 
-    if (currentUser?.role !== "Admin") {
+    if (getLoggedUser()?.role !== "Admin") {
        sellerSelectFilter.disabled = true;
-       sellerSelectFilter.add(new Option(currentUser!.name, String(currentUser!.id)));
-       sellerSelectFilter.value = String(currentUser!.id);
+       sellerSelectFilter.add(new Option(getLoggedUser()!.name, String(getLoggedUser()!.id)));
+       sellerSelectFilter.value = String(getLoggedUser()!.id);
        return;
     }
     
@@ -271,7 +273,7 @@ function renderSalesTable(sales: Order[]): void {
                             <td>
                                 <div class="crud-actions">
                                     <button class="btn-icon btn-edit" type="button" title="Ver detalle" data-sale-id="${sale.id}">🔍</button>
-                                    ${!sale.cancelled && currentUser?.role === "Admin" ? `
+                                    ${!sale.cancelled && getLoggedUser()?.role === "Admin" ? `
                                                 <button class="btn-icon btn-delete" type="button" title="Cancelar" data-sale-id="${sale.id}">🗑</button>
                                             ` : ``}
                                 </div>
@@ -313,8 +315,7 @@ async function handleSaleAction(event: MouseEvent): Promise<void> {
         const sale = pagination.items.find(sale => Number(sale.id) === saleId);
         if (!sale) 
             return;
-
-        if(currentUser?.role !== "Admin")
+        if(getLoggedUser()?.role !== "Admin")
             navigate(`/seller/sales/${sale.id}`);
         else
             navigate(`/admin/sales/${sale.id}`);
