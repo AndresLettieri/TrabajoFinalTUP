@@ -5,7 +5,14 @@
 **Trabajo Práctico Final – Tecnicatura en Programación**
 
 **Integrantes:** Enzo Leiva – Andrés Lettieri
-
+---
+# Documentación
+-  [Documento Modelo de dominio](https://github.com/AndresLettieri/TrabajoFinalTUP/blob/0a3d40671c4ba19b108dc9a09a1ce63695b3a9b6/docs/Documento%20Modelo%20de%20dominio.pdf)
+-  [Documneto funcional](https://github.com/AndresLettieri/TrabajoFinalTUP/blob/0a3d40671c4ba19b108dc9a09a1ce63695b3a9b6/docs/Documento%20funcional.pdf)
+-  [Arquitectura del sistema](https://github.com/AndresLettieri/TrabajoFinalTUP/blob/0a3d40671c4ba19b108dc9a09a1ce63695b3a9b6/docs/arquitectura.md)
+-  [Modelo del dominio](https://github.com/AndresLettieri/TrabajoFinalTUP/blob/0a3d40671c4ba19b108dc9a09a1ce63695b3a9b6/docs/modelo%20de%20dominio.md)
+-  [Módulos del sistema](https://github.com/AndresLettieri/TrabajoFinalTUP/blob/0a3d40671c4ba19b108dc9a09a1ce63695b3a9b6/docs/modulos.md)
+-  [Grafico MER](https://github.com/AndresLettieri/TrabajoFinalTUP/blob/0a3d40671c4ba19b108dc9a09a1ce63695b3a9b6/docs/MER%20DistribuidoraBebidas.png)
 ---
 
 # Instalación y configuración
