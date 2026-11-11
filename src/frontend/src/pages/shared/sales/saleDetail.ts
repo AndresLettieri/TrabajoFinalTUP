@@ -6,7 +6,10 @@ import { formatCurrency } from "../../../utils/formatsUtils";
 import { getCurrentUser } from "../../../services/auth/authSession";
 import { navigate } from "../../../router/router";
 
-const currentUser = getCurrentUser();
+function getLoggedUser() {
+    return getCurrentUser();
+}
+
     
 export function renderSaleDetail(): void {
     renderLayout(saleDetailHtml);
@@ -19,7 +22,7 @@ export function renderSaleDetail(): void {
         document.querySelector<HTMLButtonElement>("#back-to-sales");
 
     backButton?.addEventListener("click", () => {
-        if (currentUser?.role !== "Admin") {
+        if (getLoggedUser()?.role !== "Admin") {
             navigate("/seller/sales");
         } else {
             navigate("/admin/sales");
