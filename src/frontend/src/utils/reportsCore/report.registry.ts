@@ -1,15 +1,17 @@
 import { getCurrentUser } from "../../services/auth/authSession";
 import type { ReportDefinition } from "./report.types";
 
-type ReportModule = {default: ReportDefinition<unknown>;};
-
-const user = getCurrentUser();
+type ReportModule = {
+    default: ReportDefinition<unknown>;
+};
 
 function loadReportModules(): Record<string, ReportModule> {
     const commonReports = import.meta.glob<ReportModule>(
         "../../pages/shared/reports/definitions/common/*.ts",
         { eager: true },
     );
+
+    const user = getCurrentUser();
 
     let roleReports: Record<string, ReportModule> = {};
 
@@ -31,19 +33,23 @@ function loadReportModules(): Record<string, ReportModule> {
         default:
             return {};
     }
+
     return {
         ...commonReports,
         ...roleReports,
     };
 }
 
-const reportModules = loadReportModules();
+export function getReports(): ReportDefinition<unknown>[] {
+    const reportModules = loadReportModules();
 
-export const reports: ReportDefinition<unknown>[] =
-    Object.values(reportModules).map(({ default: report }) => report);
+    return Object.values(reportModules).map(
+        ({ default: report }) => report,
+    );
+}
 
 export function getReportById(
     id: string,
 ): ReportDefinition<unknown> | undefined {
-    return reports.find((report) => report.id === id);
+    return getReports().find((report) => report.id === id);
 }

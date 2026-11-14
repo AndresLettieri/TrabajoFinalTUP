@@ -1,7 +1,7 @@
 import reportsHtml from "./reports.html?raw";
 import { renderLayout } from "../../shared/layout";
 import { formatCurrency } from "../../../utils/formatsUtils";
-import { reports } from "../../../utils/reportsCore/report.registry";
+import { getReports } from "../../../utils/reportsCore/report.registry";
 import { getReportById } from "../../../utils/reportsCore/report.registry";
 import { renderReportGrid } from "../../../utils/reportsCore/report-grid";
 import { renderReportFilters } from "../../../utils/reportsCore/report-filters";
@@ -43,9 +43,15 @@ export function renderReports(): void {
 
     if (!reportTypeSelect || !reportContent) 
         throw new Error("No se pudo inicializar el selector de reportes.");
-    
+  
+    reportTypeSelect.replaceChildren(
+        new Option("Seleccioná un reporte", "")
+    );
+  
+    const availableReports = getReports();
+
     // Cargo los reportes disponibles en el selector dinamicamente
-    for (const report of reports) {
+    for (const report of availableReports) {
         const option = document.createElement("option");
         option.value = report.id;
         option.textContent = report.title;
