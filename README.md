@@ -13,6 +13,7 @@
 -  [Modelo del dominio](https://github.com/AndresLettieri/TrabajoFinalTUP/blob/0a3d40671c4ba19b108dc9a09a1ce63695b3a9b6/docs/modelo%20de%20dominio.md)
 -  [Módulos del sistema](https://github.com/AndresLettieri/TrabajoFinalTUP/blob/0a3d40671c4ba19b108dc9a09a1ce63695b3a9b6/docs/modulos.md)
 -  [Grafico MER](https://github.com/AndresLettieri/TrabajoFinalTUP/blob/0a3d40671c4ba19b108dc9a09a1ce63695b3a9b6/docs/MER%20DistribuidoraBebidas.png)
+- [Video presentación](https://drive.google.com/file/d/1eRjrFP0uiRpPmh4FKiD5T4CHXM1iHHjG/view?usp=sharing)
 ---
 
 # Instalación y configuración
@@ -198,6 +199,10 @@ El sistema tiene como objetivo central facilitar y organizar la gestión de art�
 La propuesta está orientada a resolver las necesidades operativas principales de una distribuidora, priorizando la trazabilidad de las operaciones, el control del stock y la disponibilidad de información histórica para la toma de decisiones.
 
 El proyecto será desarrollado como un Trabajo Práctico Final por un equipo de dos integrantes, quienes participarán tanto en las tareas de desarrollo backend como frontend.
+
+## Uso de Inteligencia Artificial
+
+Para el desarrollo de este proyecto se utilizó inteligencia artificial (ChatGPT) como apoyo en la definición del alcance y en la validación del modelo de dominio. Estas herramientas ayudaron a organizar requerimientos, identificar entidades y relaciones, y revisar posibles casos de uso, siempre con la participación y criterio del equipo para confirmar las decisiones finales.
 
 # 2. Objetivos
 
